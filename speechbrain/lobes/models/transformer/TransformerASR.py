@@ -313,6 +313,13 @@ class TransformerASR(TransformerInterface):
             src_key_padding_mask=src_key_padding_mask,
             pos_embs=pos_embs_source,
         )
+
+        if self.attention_type == "RelPosMHAXL":	
+            # FIXME we use pos embs also on enc output	
+            encoder_out = encoder_out + self.positional_encoding_decoder(	
+            encoder_out	
+            )
+
         return encoder_out
 
     def _init_params(self):
