@@ -1,0 +1,119 @@
+# Generated 2022-12-07 from:
+# /speechbrain/recipes/KdialectSpeech/LM/hparams/transformer.yaml
+# yamllint disable
+# ############################################################################
+# Model: Transformer LM of E2E ASR
+# Tokens: unigram
+# losses: NLL
+# Training: KsponSpeech train transcript
+# Authors:  Dongwon Kim, Dongwoo Kim 2021
+# ############################################################################
+
+# Seed needs to be set at top of yaml, before objects with parameters are made
+seed: 2222
+__set_seed: !apply:torch.manual_seed [2222]
+
+province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc']
+
+output_folder: results/Transformer/2222/gs
+save_folder: results/Transformer/2222/gs/save
+train_log: results/Transformer/2222/gs/train_log.txt
+# tb_log: !ref <output_folder>/tb_log # tensorboard용 디렉토리
+
+# Data files
+
+data_folder: ../Tokenizer/results/5K_subword_unigram_LM/gs
+
+skip_prep: false
+train_csv: ../Tokenizer/results/5K_subword_unigram_LM/gs/train.csv
+valid_csv: ../Tokenizer/results/5K_subword_unigram_LM/gs/valid.csv
+test_csv: ../Tokenizer/results/5K_subword_unigram_LM/gs/test.csv
+
+# Tokenizer model
+tokenizer_file: ../Tokenizer/results/5K_subword_unigram_LM/gs/5000_unigram.model
+
+# Training parameters
+number_of_epochs: 30 # 30
+batch_size: 256 # 256
+lr: 0.1
+accu_steps: 4 # Gradient accumulation to simulate large batch training
+ckpt_interval_minutes: 15 # save checkpoint every N min
+
+# Dataloader options
+train_dataloader_opts:
+  batch_size: 256
+  shuffle: true
+  pin_memory: true
+
+valid_dataloader_opts:
+  batch_size: 1
+
+test_dataloader_opts:
+  batch_size: 1
+
+# Outputs
+output_neurons: 5000
+blank_index: 0
+bos_index: 1
+eos_index: 2
+unk_index: 0
+pad_index: 0
+
+# model params
+d_model: 768
+
+
+# Functions
+model: &id001 !new:speechbrain.lobes.models.transformer.TransformerLM.TransformerLM
+
+  vocab: 5000
+  d_model: 768
+  nhead: 12
+  num_encoder_layers: 12
+  num_decoder_layers: 0
+  d_ffn: 3072
+  dropout: 0.15
+  activation: !name:torch.nn.GELU
+  normalize_before: false
+
+modules:
+  model: *id001
+checkpointer: !new:speechbrain.utils.checkpoints.Checkpointer
+  checkpoints_dir: results/Transformer/2222/gs/save
+  recoverables:
+    model: *id001
+    scheduler: &id002 !new:speechbrain.nnet.schedulers.NoamScheduler
+      lr_initial: 0.1
+      n_warmup_steps: 1250
+      model_size: 768
+
+    counter: &id003 !new:speechbrain.utils.epoch_loop.EpochCounter
+
+      limit: 30
+
+log_softmax: !new:speechbrain.nnet.activations.Softmax
+  apply_log: true
+
+optimizer: !name:torch.optim.Adam
+  lr: 0
+  betas: (0.9, 0.98)
+  eps: 0.000000001
+
+lr_annealing: *id002
+epoch_counter: *id003
+compute_cost: !name:speechbrain.nnet.losses.nll_loss
+
+train_logger: !new:speechbrain.utils.train_logger.FileTrainLogger
+  save_file: results/Transformer/2222/gs/train_log.txt
+
+# train_logger: !new:speechbrain.utils.train_logger.TensorboardLogger
+#     save_dir: !ref <tb_log>
+
+tokenizer: &id004 !new:sentencepiece.SentencePieceProcessor
+
+pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+  collect_in: results/Transformer/2222/gs/save
+  loadables:
+    tokenizer: *id004
+  paths:
+    tokenizer: ../Tokenizer/results/5K_subword_unigram_LM/gs/5000_unigram.model
