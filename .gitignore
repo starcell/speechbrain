@@ -1,5 +1,7 @@
 # pretrained model files
 pretrained-model*/
+ckpt/
+csv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

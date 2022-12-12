@@ -1,0 +1,1 @@
+../kdialectspeech_prepare.py
