@@ -1,7 +1,14 @@
 # pretrained model files
-pretrained-model*/
-ckpt/
-csv/
+**/pretrained-model*/
+**/ckpt/
+
+# csv file directory
+**/csv/
+
+#env corrupt files
+**/env_corrupt/
+
+**/results*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
