@@ -5,7 +5,7 @@
 #           N Park 2022
 # ############################################################################
 
-province_code: cc #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: jj #['gw', 'gs', 'jl', 'jj', 'cc']
 output_folder: !ref results/5K_subword_unigram_LM/<province_code>
 # train_log: !ref <output_folder>/train_log.txt
 
@@ -28,7 +28,7 @@ data_ratio: # train : valid : test
 
 # Training parameters
 token_type: unigram  # ["unigram", "bpe", "char"]
-token_output: 5000  # index(blank/eos/bos/unk) = 0
+token_output: 1000  # index(blank/eos/bos/unk) = 0
 character_coverage: 1.0
 csv_read: wrd
 bos_index: 1

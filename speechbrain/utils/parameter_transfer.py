@@ -250,6 +250,7 @@ class Pretrainer:
             if not self.is_loadable(name):
                 continue
             filename = name + PARAMFILE_EXT
+           
             paramfiles[name] = self.collect_in / filename
         self._call_load_hooks(paramfiles, device)
 

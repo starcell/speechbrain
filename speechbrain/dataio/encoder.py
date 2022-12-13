@@ -670,6 +670,7 @@ class CategoricalEncoder:
 
         Call super()._set_extras(extras) to set the base extras
         """
+        print(extras)
         if "unk_label" in extras:
             self.unk_label = extras["unk_label"]
         self.starting_index = extras["starting_index"]

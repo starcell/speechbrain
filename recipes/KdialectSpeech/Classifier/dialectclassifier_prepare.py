@@ -50,12 +50,15 @@ def make_dialect_df(hparams):
     test_df = pd.DataFrame()
 
     for province_code in province_codes:
+        print(f'province_code : {province_code}')
         province_dir = os.path.join(dialect_data_folder, province_code)
         if not os.path.isdir(province_dir):
             print(f'{province_dir} is not exist!')
             continue
         else:
             for tvt in ['train', 'valid', 'test']:
+                # logger.info(f'tvt : {tvt}')
+                print(f'tvt : {tvt}')
                 csv = os.path.join(province_dir, tvt + '.csv')
                 csv_df = pd.read_csv(csv)
 
