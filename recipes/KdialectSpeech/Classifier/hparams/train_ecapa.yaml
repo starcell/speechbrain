@@ -16,7 +16,7 @@ province_codes:
     - gw
     - gs
     - jl
-    - jj
+    # - jj
     - cc
 
 # Data files
@@ -29,9 +29,9 @@ test_csv: !ref <data_folder>/test.csv
 env_corrupt_folder: !ref ../env_corrupt
 
 num_province_data:
-    train: 1400
-    valid: 180
-    test: 180
+    train: 14000
+    valid: 1700
+    test: 1700
 
 ckpt_interval_minutes: 5
 
@@ -55,7 +55,7 @@ right_frames: 0
 deltas: False
 
 # Number of dialects
-out_n_neurons: 5
+out_n_neurons: 4
 
 train_dataloader_options:
     num_workers: 4
