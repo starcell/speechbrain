@@ -10,7 +10,7 @@
 seed: 2222
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
-province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc']
 
 output_folder: !ref results/Transformer/<seed>/<province_code>
 save_folder: !ref <output_folder>/save
