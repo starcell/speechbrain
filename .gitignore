@@ -18,6 +18,8 @@
 
 test/
 
+log.txt
+error_files.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

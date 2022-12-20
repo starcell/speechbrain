@@ -1,0 +1,92 @@
+# - data_dir
+# - 매니패스트 파일
+# - 말뭉치 파일
+# - 토크나이저
+# - lm_model
+# - 초매개변수
+
+# run modules
+run_modules:
+    # - data_download
+    # - tokenizer
+    - lm
+    # - asr
+
+run_provinces:
+    - gw
+    # - gs
+    # - jl
+    # - jj
+    # - cc
+
+gpu_num: 4
+
+# pipe_log
+log_config: log-config.yaml
+log_file: log.txt
+error_file_log: error_files.txt # wrong audio files
+wrong_samplerate_file: wrong_samplerate.txt # samplerate이 16000이 아닌 파일 목록
+
+# directory
+base_dir: ..
+tokenizer_dir: !ref <base_dir>/Tokenizer
+lm_dir: !ref <base_dir>/LM
+asr_dir: !ref <base_dir>/ASR/Conformer
+
+
+### MTData data : naver cloud storage
+### 접속 정보
+service_name: s3
+endpoint_url: https://kr.object.ncloudstorage.com
+storage_region_name: kr-standard
+access_key: 7NYHGkci0LTg3EAqu67w
+secret_key: 01cS8pqm6q0f63cJoVsIdy3CodwBjhjPnzr113rL
+
+bucket_name: fn-2-018
+max_keys: 1000
+
+data_save_path: /data/MTDATA/fn-2-018/root
+
+key_names:  
+    # - 1114Dataset_new
+    # - 1115Dataset_new
+    # - 1117Dataset_new
+    # - 1118Dataset
+    # - 1121Dataset
+    # - 1122Dataset
+    # - 1123Dataset
+    # - 1124Dataset
+    # - 1125Dataset
+    # - 1126Dataset
+    # - 1127Dataset
+    # - 1128Dataset
+    # - 1129Dataset
+    # - 1130Dataset
+    # - 1201Dataset
+    # - 1202Dataset
+    # - 1203Dataset
+    # - 1205Dataset
+    # - 1206Dataset
+    # - 1207Dataset
+    # - 1208Dataset
+    # - 1209Dataset
+    # - 1210Dataset
+    # - 1212Dataset
+    # - 1213Dataset
+    # - 1214Dataset
+    # - 1215Dataset
+    # - 1216Dataset
+    # - 1217Dataset
+    # - 1218Dataset
+    # - 1219Dataset
+    - 1220Dataset
+    # - 1221Dataset
+
+smaplerate: 16000
+
+tokenizer_dict: # provice_code : token_output: 5000
+   gw: 5000
+   gs: 5000
+   jl: 5000
+   jj: 1000
+   cc: 5000
