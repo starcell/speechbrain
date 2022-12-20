@@ -8,14 +8,16 @@ import logging
 import sys
 import os
 import subprocess
+import glob
+import shutil
+
+# from tqdm import tqdm
+from pathlib import Path
 
 import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
-import boto3
 
-import datetime
-from tqdm import tqdm
-from pathlib import Path
+import boto3
 
 from kdialectspeech.s3_download import get_s3_files
 from kdialectspeech.resample import resample_audio
@@ -178,6 +180,38 @@ if __name__ == "__main__":
                 shell=True,
                 stdout=subprocess.PIPE
             )
+
+            logger.info(f'subprocess.CompletedProcess : {subprocess.CompletedProcess}')
+            if subprocess.CompletedProcess.returncode == 0:
+                logger.info(f'asr completed successfully')
+                if hparams['copy_trained_model']:
+
+                    train_result_dir = os.path.join(asr_dir, 'results/Conformer/7774/' + run_province + '/save')
+
+                    lm_model =  os.path.join(train_result_dir, 'lm.ckpt')
+                    tokenizer =  os.path.join(train_result_dir, 'tokenizer.ckpt')
+
+                    best_model_dir = sorted(glob.glob(train_result_dir + '/CKPT*'), key=os.path.getmtime)[0]
+                    best_model_dir = Path(best_model_dir).stem
+
+                    best_model = os.path.join(best_model_dir + '/model.ckpt')
+                    normalizer = os.path.join(best_model_dir + '/normalizer.ckpt')
+
+                    pretrained_model_base = hparams['pretrained_model_base']
+                    pretrained_model_dir = os.path.join(pretrained_model_base, run_province)
+
+                    hparam_file = os.path.join(pretrained_model_base, 'hyperparams.yaml')
+
+                    # copy to pretrained_model_dir
+                    shutil.copy(hparam_file, pretrained_model_dir)
+                    shutil.copy(lm_model, pretrained_model_dir)
+                    shutil.copy(tokenizer, pretrained_model_dir)
+                    shutil.copy(best_model, pretrained_model_dir)
+                    shutil.copy(normalizer, pretrained_model_dir)
+
+                    os.symlink(best_model, lm_model)
+
+
         else:
             logger.info(f'asr is not in run_modules')
 

@@ -9,8 +9,8 @@
 run_modules:
     # - data_download
     # - tokenizer
-    - lm
-    # - asr
+    # - lm
+    - asr
 
 run_provinces:
     - gw
@@ -90,3 +90,8 @@ tokenizer_dict: # provice_code : token_output: 5000
    jl: 5000
    jj: 1000
    cc: 5000
+
+copy_trained_model: True
+
+pretrained_model_base: !ref <base_dir>/Inference/pretrained-model-src
+
