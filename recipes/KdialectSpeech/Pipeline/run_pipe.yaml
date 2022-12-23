@@ -14,10 +14,10 @@ run_modules:
 
 run_provinces:
     - gw
-    # - gs
-    # - jl
+    - gs
+    - jl
     # - jj
-    # - cc
+    - cc
 
 gpu_num: 4
 
@@ -80,7 +80,7 @@ key_names:
     # - 1218Dataset
     # - 1219Dataset
     - 1220Dataset
-    # - 1221Dataset
+    - 1221Dataset
 
 smaplerate: 16000
 

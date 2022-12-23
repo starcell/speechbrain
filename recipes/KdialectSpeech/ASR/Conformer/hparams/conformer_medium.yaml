@@ -44,7 +44,7 @@ skip_prep: False
 # The global batch size is computed as batch_size * n_gpus * gradient_accumulation.
 # Empirically, we found that this value should be >= 128.
 # Please, set your parameters accordingly.
-number_of_epochs: 100
+number_of_epochs: 20
 batch_size: 32 # 32 This works for GPUs with 80GB
 ctc_weight: 0.3
 gradient_accumulation: 4
@@ -197,12 +197,12 @@ test_search: !new:speechbrain.decoders.S2STransformerBeamSearch
     max_decode_ratio: !ref <max_decode_ratio>
     beam_size: !ref <test_beam_size>
     ctc_weight: !ref <ctc_weight_decode>
-    lm_weight: !ref <lm_weight>
-    lm_modules: !ref <lm_model>
-    temperature: 1.25
-    temperature_lm: 1.25
+    # lm_weight: !ref <lm_weight>
+    # lm_modules: !ref <lm_model>
+    # temperature: 1.25
+    # temperature_lm: 1.25
     using_eos_threshold: False
-    length_normalization: True
+    length_normalization: False # True
 
 log_softmax: !new:torch.nn.LogSoftmax
     dim: -1

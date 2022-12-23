@@ -17,16 +17,20 @@ Authors
 apt install ffmpeg
 pip install pydub # pydub는 ffmpeg를 필요로 함.
 """
-
+# import logging
 import sys
 import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
 from speechbrain.utils.distributed import run_on_main
 
+# logger = logging.getLogger(__name__)
+
 if __name__ == "__main__":
 
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
+
+
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
@@ -43,6 +47,13 @@ if __name__ == "__main__":
         hyperparams_to_save=hparams_file,
         overrides=overrides,
     )
+
+    # logger.info(f'---------------------------------------------')
+    # logger.info(f'sys.argv[1:] : {sys.argv[1:]}')
+
+    # logger.info(f'run_opts : {run_opts}')
+    # logger.info(f'overrides : {overrides}')
+    # logger.info(f'hparams["province_code"] : {hparams["province_code"]}')
 
     # multi-gpu (ddp) save data preparation
     run_on_main(

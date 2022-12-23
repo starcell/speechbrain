@@ -22,34 +22,26 @@ import boto3
 from kdialectspeech.s3_download import get_s3_files
 from kdialectspeech.resample import resample_audio
 
-
 # print(os.path.dirname(os.path.abspath(__file__)))
 # print(__file__)
 
-
-
-
-
 if __name__ == "__main__":
     # CLI:
-    print('test')
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
     ##### setup logging
     logger = logging.getLogger(__name__)
-
     log_config = hparams["log_config"]
     log_file = hparams["log_file"]
-
     logger_overrides = {
         "handlers": {"file_handler": {"filename": log_file}}
     }
-
     # setup_logging(config_path="log-config.yaml", overrides={}, default_level=logging.INFO)
     sb.utils.logger.setup_logging(log_config, logger_overrides)
     #####
+
 
     ##### download data from s3 storage
     if 'data_download' in hparams['run_modules']:
@@ -93,6 +85,10 @@ if __name__ == "__main__":
     run_provinces = hparams["run_provinces"]
     gpu_num = hparams["gpu_num"]
 
+
+    #####
+    ##### 방언별 실행 : 토크나이저, 언어모델, 음성인식모델
+    #####
     for run_province in run_provinces:
         province_option = '--province_code=' + run_province
 
@@ -103,31 +99,26 @@ if __name__ == "__main__":
         if 'tokenizer' in hparams['run_modules']:
             logger.info(f'tokenizer run_option : {province_option}')
             tokenizer_dir = hparams["tokenizer_dir"]
+            logger.info(f'tokenizer_dir : {tokenizer_dir}')
+
+            if run_province == 'jj':
+                # cmd = ['python', 'train.py', 'hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu' + province_option] # 리스트로는 실행이 안됨
+                cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu ' + province_option
+            else:
+                # cmd = ['python', 'train.py', 'hparams/5K_unigram_subword_bpe.yaml', '--device=cpu', province_option] # 리스트로는 실행이 안됨
+                cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml --device=cpu ' + province_option
             
-            subprocess.run(
-                # ['python train.py hparams/5K_unigram_subword_bpe.yaml', '--province_code=gs'], 
-                ['python train.py hparams/5K_unigram_subword_bpe.yaml', province_option], 
+            logger.info(f'cmd : {cmd}')
+            result = subprocess.run(cmd,
                 text=True,
                 # capture_output=True,
                 cwd=tokenizer_dir,
                 shell=True,
-                stdout=subprocess.PIPE
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
             )
         else:
             logger.info(f'tokenizer is not in run_modules')
-
-        
-        # tokenizer_dir = hparams["tokenizer_dir"]
-
-        # subprocess.run(
-        #     ['python train.py hparams/5K_unigram_subword_bpe.yaml', '--province_code=gs'], 
-        #     text=True,
-        #     # capture_output=True,
-        #     cwd=tokenizer_dir,
-        #     shell=True,
-        #     stdout=subprocess.PIPE
-        # )
-        #####
 
 
         ##### 언어모델
@@ -136,14 +127,15 @@ if __name__ == "__main__":
             logger.info(f'lm run_option : {province_option}')
             logger.info(f'gpu num : {gpu_num}')
             lm_dir = hparams["lm_dir"]
-            if gpu_num > 1:
-                cmd = "python -m torch.distributed.launch --nproc_per_node=" + str(gpu_num) + " train.py hparams/transformer.yaml --distributed_launch --distributed_backend='nccl'"
+            if gpu_num > 1: # 제주도일 경우 처리(vocab size가 다름)
+                cmd = "python -m torch.distributed.launch --nproc_per_node=" \
+                    + str(gpu_num) \
+                    + " train.py hparams/transformer.yaml --distributed_launch --distributed_backend='nccl' " \
+                    + province_option
             else:
-                cmd = 'python train.py hparams/transformer.yaml'
-            subprocess.run(
-                # ['python train.py hparams/transformer.yaml', '--province_code=gs'],
-                # ['python train.py hparams/transformer.yaml', run_option],
-                [cmd, province_option],
+                cmd = 'python train.py hparams/transformer.yaml ' + province_option
+            result = subprocess.run(
+                cmd,
                 text=True,
                 # capture_output=True,
                 cwd=lm_dir,
@@ -165,11 +157,14 @@ if __name__ == "__main__":
             logger.info(f'gpu num : {gpu_num}')
             asr_dir = hparams["asr_dir"]
             print(asr_dir)
-            if gpu_num > 1:
-                cmd = "python -m torch.distributed.launch --nproc_per_node=" + str(gpu_num) + " train.py hparams/conformer_medium.yaml --distributed_launch --distributed_backend='nccl'"
+            if gpu_num > 1: # 제주도일 경우 처리(vocab size가 다름)
+                cmd = "python -m torch.distributed.launch --nproc_per_node=" \
+                    + str(gpu_num) \
+                    + " train.py hparams/conformer_medium.yaml --distributed_launch --distributed_backend='nccl' " \
+                    + province_option
             else:
-                cmd = 'python train.py hparams/conformer_medium.yaml'
-            subprocess.run(
+                cmd = 'python train.py hparams/conformer_medium.yaml ' + province_option
+            result = subprocess.run(
                 # ['python train.py hparams/conformer_medium.yaml', '--province_code=gs'],
                 # ['python train.py hparams/conformer_medium.yaml', province_option],
                 [cmd, province_option],
@@ -182,7 +177,8 @@ if __name__ == "__main__":
             )
 
             logger.info(f'subprocess.CompletedProcess : {subprocess.CompletedProcess}')
-            if subprocess.CompletedProcess.returncode == 0:
+            # if subprocess.CompletedProcess.returncode == 0:
+            if result.returncode == 0:
                 logger.info(f'asr completed successfully')
                 if hparams['copy_trained_model']:
 
@@ -210,7 +206,6 @@ if __name__ == "__main__":
                     shutil.copy(normalizer, pretrained_model_dir)
 
                     os.symlink(best_model, lm_model)
-
 
         else:
             logger.info(f'asr is not in run_modules')
