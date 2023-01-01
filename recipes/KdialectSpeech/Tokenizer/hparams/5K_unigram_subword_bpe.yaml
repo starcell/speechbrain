@@ -6,7 +6,8 @@
 # ############################################################################
 
 province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc']
-output_folder: !ref results/5K_subword_unigram_LM/<province_code>
+# output_folder: !ref results/5K_subword_unigram_LM/<province_code>
+output_folder: !ref results/data_prepared/<province_code>
 # train_log: !ref <output_folder>/train_log.txt
 
 

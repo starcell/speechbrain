@@ -8,7 +8,7 @@ output_folder: !ref results/5K_subword_unigram_LM/
 # train_log: !ref <output_folder>/train_log.txt
 
 # Data files
-data_folder: !PLACEHOLDER # e.g., /path/to/KsponSpeech
+data_folder: /data/KsponSpeech # e.g., /path/to/KsponSpeech
 train_splits: ["train"]
 dev_splits: ["dev"]
 test_splits: ["eval_clean", "eval_other"]

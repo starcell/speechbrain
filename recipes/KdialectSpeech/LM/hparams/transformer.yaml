@@ -7,7 +7,7 @@
 # ############################################################################
 
 # Seed needs to be set at top of yaml, before objects with parameters are made
-seed: 2222
+seed: 5555
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
 province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc']
