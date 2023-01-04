@@ -26,7 +26,7 @@ asr_dir: !ref <kdialect_base_dir>/ASR/Conformer
 # run modules
 run_modules:
     # - data_download
-    - tokenizer
+    # - tokenizer
     # - lm
     - asr
 
@@ -56,7 +56,8 @@ secret_key: 01cS8pqm6q0f63cJoVsIdy3CodwBjhjPnzr113rL
 bucket_name: fn-2-018
 max_keys: 1000
 
-data_save_path: /data/MTDATA/fn-2-018/root
+# data_save_path: /data/MTDATA/fn-2-018/root
+data_save_path: /data/MTDATA/fn-2-018/starcell/root
 
 # download 받은 디렉토리
 key_names:
@@ -67,7 +68,7 @@ key_names:
     # - 1121Dataset
     # - 1122Dataset
     # - 1123Dataset
-    # - 1124Dataset
+    # - 1124Dataset # starcell에 없음
     # - 1125Dataset
     # - 1126Dataset
     # - 1127Dataset
@@ -83,23 +84,26 @@ key_names:
     # - 1208Dataset
     # - 1209Dataset
     # - 1210Dataset
-    # - 1212Dataset
-    # - 1213Dataset
-    # - 1214Dataset
-    # - 1215Dataset
-    # - 1216Dataset
-    # - 1217Dataset
-    # - 1218Dataset
-    # - 1219Dataset
-    # - 1220Dataset
-    # - 1221Dataset
-    # - 1222Dataset
-    # - 1223Dataset    
-    # - 1224Dataset
-    # - 1227Dataset (12-28:10시 30분 진행)
-    # - 1226Dataset
-    # - 1227Dataset
+    - 1212Dataset
+    - 1213Dataset
+    - 1214Dataset
+    - 1215Dataset
+    - 1216Dataset
+    - 1217Dataset
+    - 1218Dataset
+    - 1219Dataset
+    - 1220Dataset
+    - 1221Dataset
+    - 1222Dataset
+    - 1223Dataset
+    - 1224Dataset
+    - 1227Dataset
+    - 1226Dataset
+    - 1227Dataset
     - 1228Dataset
+    - 1229Dataset
+    - 1230Dataset
+    - 1231Dataset
     
 smaplerate: 16000
 

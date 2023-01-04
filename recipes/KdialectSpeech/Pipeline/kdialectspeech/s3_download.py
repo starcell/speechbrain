@@ -41,7 +41,7 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
     return obj_list
 
 
-def get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log):
+def get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log, root_folder=None):
     # error_file = 'error_' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.txt'
     # error_file_path = os.path.join(data_save_path, error_file)
     with open(error_file_log, 'w') as lf:
@@ -52,14 +52,23 @@ def get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_fil
             # object_list = get_s3_object_list(s3, bucket_name, date, max_keys)
             # print(object_list[0])
 
+            if root_folder is not None:
+                key_name = root_folder + key_name
+                idxs = list(range(1,7))
+            else:
+                idxs = list(range(0,6))
+
+            print(f'key_name : {key_name}')
+            print(f'idxs : {idxs}')
+
             # for key in tqdm(object_list):
             for key in tqdm(get_s3_object_list(s3, bucket_name, key_name, max_keys)):
                 # print(Path(key).suffix)
                 if Path(key).suffix in ['.json', '.wav']:
                     key_2 = key.split('/')
-                    save_dir = os.path.join(data_save_path, key_2[1], key_2[2], key_2[3], key_2[4])
+                    save_dir = os.path.join(data_save_path, key_2[idxs[1]], key_2[idxs[2]], key_2[idxs[3]], key_2[idxs[4]])
                     os.makedirs(save_dir, exist_ok=True)
-                    save_file = os.path.join(save_dir, key_2[5])
+                    save_file = os.path.join(save_dir, key_2[idxs[5]])
                     try:
                         # print(i)
                         s3.download_file(bucket_name, key, save_file)

@@ -11,7 +11,7 @@
 seed: 5555
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
-province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc']
 
 output_folder: !ref results/Conformer/<seed>/<province_code>
 wer_file: !ref <output_folder>/wer.txt

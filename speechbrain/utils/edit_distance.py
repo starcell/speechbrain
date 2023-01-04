@@ -374,8 +374,16 @@ def wer_details_for_batch(ids, refs, hyps, compute_alignments=False):
     ...     "{:.2f}".format(wer_details[0]['WER']))
     utt1 : 33.33
     """
+
+    # print(f'wer_details_for_batch hyps 1 : {hyps}')
+    # print(f'wer_details_for_batch refs 1 : {refs}')
+
     refs = _batch_to_dict_format(ids, refs)
     hyps = _batch_to_dict_format(ids, hyps)
+
+    # print(f'wer_details_for_batch hyps 2 : {hyps}')
+    # print(f'wer_details_for_batch refs 2 : {refs}')
+
     return wer_details_by_utterance(
         refs, hyps, compute_alignments=compute_alignments, scoring_mode="strict"
     )

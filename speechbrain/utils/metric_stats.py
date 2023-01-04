@@ -284,6 +284,9 @@ class ErrorRateStats(MetricStats):
             predict = split_word(predict, space=self.space_token)
             target = split_word(target, space=self.space_token)
 
+        # print(f'ErrorRateStats predict : {predict}')
+        # print(f'ErrorRateStats target : {target}')
+
         scores = wer_details_for_batch(ids, target, predict, True)
 
         self.scores.extend(scores)

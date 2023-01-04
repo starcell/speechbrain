@@ -66,7 +66,7 @@ if __name__ == "__main__":
         # data_save_path = secret_key = hparams["data_save_path"]
         os.makedirs(data_save_path, exist_ok=True)
 
-        get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log)
+        get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log, root_folder='starcell/')
         #####
 
         ##### resample audio files
@@ -197,6 +197,10 @@ if __name__ == "__main__":
             asr_dir = hparams["asr_dir"]
             print(asr_dir)
             if gpu_num > 1: # 제주도일 경우 처리(vocab size가 다름)
+                # GPU 지정하여 사용할 경우
+                # export CUDA_VISIBLE_DEVICES="1,2,3"
+                # 위 환경을 python에서 지정
+                # os.environ["CUDA_VISIBLE_DEVICES"]="1,2,3"
                 cmd = "python -m torch.distributed.launch --nproc_per_node=" \
                     + str(gpu_num) \
                     + " train.py hparams/conformer_medium.yaml --distributed_launch --distributed_backend='nccl' " \

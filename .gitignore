@@ -10,6 +10,8 @@
 
 **/results*/
 
+**/Inference/wer*
+
 **/classifier_data*/
 
 *.wav
