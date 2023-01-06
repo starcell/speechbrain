@@ -1,0 +1,29 @@
+sWER 처리
+
+1. sWER 계산 : ASR train.py에서 swer 계산 추가
+    - self.swer_metric = self.hparams.error_rate_computer()
+    - predicted_swords = get_swords(hyps, wrd) -> space normalized words
+        - 변환하는 함수 모듈로 만들어서 불러오기.
+    - self.swer_metric.append(ids, predicted_swords, target_words)
+    - self.swer_metric.write_stats(w)
+
+2. log : metric_stats.py에서 %WER을 %sWER로 저장하도록 수정
+    - write_stats(self, filestream):
+
+3. space normalize 함수 만들기
+    - swer.ipynb 파일 내용을 참고하여 만들기
+
+
+데이터 검사 필요 : wer값이 높게 나온 데이터
+41 : 90.42
+68 : 82.52
+40 : 85.52
+69 : 83.52
+6 : 77.51
+20 : 76.66
+70 : 77.97
+153 : 75.91
+174 : 75.01
+117 : 74.97
+119 : 75.03
+65 : 74.66

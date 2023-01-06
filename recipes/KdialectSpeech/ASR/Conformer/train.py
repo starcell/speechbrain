@@ -126,7 +126,7 @@ class ASR(sb.core.Brain):
         elif stage == sb.Stage.TEST:
             # print(f'compute_forward ----- 4')
             # print(f' test enc_out size : {enc_out.size()}')
-            hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens)
+            hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) # test_search와 valid_search의 차이는 LM 사용 여부
             # print(f' test hyps : {hyps}')
             # print(f'compute_forward ----- 5')
         # print(f'compute_forward ------------------------------------')
@@ -180,11 +180,15 @@ class ASR(sb.core.Brain):
                     tokenizer.decode_ids(utt_seq).split(" ") for utt_seq in hyps
                 ]
                 target_words = [wrd.split(" ") for wrd in batch.wrd]
+
+                ### predicted_swords = get_swords(hyps, wrd) -> space normalized words
+
                 predicted_chars = [
                     list("".join(utt_seq)) for utt_seq in predicted_words
                 ]
                 target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
                 self.wer_metric.append(ids, predicted_words, target_words)
+                # self.swer_metric.append(ids, predicted_swords, target_words)
                 self.cer_metric.append(ids, predicted_chars, target_chars)
 
             # compute the accuracy of the one-step-forward prediction
@@ -256,6 +260,7 @@ class ASR(sb.core.Brain):
         if stage != sb.Stage.TRAIN:
             self.acc_metric = self.hparams.acc_computer()
             self.wer_metric = self.hparams.error_rate_computer()
+            # self.swer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
 
     def on_stage_end(self, stage, stage_loss, epoch):
@@ -273,6 +278,7 @@ class ASR(sb.core.Brain):
                 or stage == sb.Stage.TEST
             ):
                 stage_stats["WER"] = self.wer_metric.summarize("error_rate")
+                # stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
                 stage_stats["CER"] = self.cer_metric.summarize("error_rate")
 
         # log stats and save checkpoint at end-of-epoch
@@ -305,6 +311,7 @@ class ASR(sb.core.Brain):
                 test_stats=stage_stats,
             )
             with open(self.hparams.wer_file, "w") as w:
+                # self.swer_metric.write_stats(w)
                 self.wer_metric.write_stats(w)
                 self.cer_metric.write_stats(w)
 

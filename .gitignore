@@ -18,6 +18,8 @@
 
 *.csv
 
+nohup.out
+
 test/
 
 log.txt

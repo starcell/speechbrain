@@ -2,6 +2,8 @@
 
 '''
 실행법 : python run_pipe.py run_pipe.yaml
+
+speechbrain/utils/superpowers.py 사용 검토
 '''
 
 import logging
