@@ -23,10 +23,14 @@ tb_log: !ref <output_folder>/tb_log # tensorboard용 디렉토리
 # NB: To avoid mismatch, the speech recognizer must be trained with the same
 # tokenizer used for LM training.
 # pretrained_lm_tokenizer_path: !ref ../../LM/results/Transformer/2222/<province_code>/save
+
 pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results/data_prepared/<province_code>
+# pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results.데이터적을때-경상60까지수렴-1212/5K_subword_unigram_LM/<province_code>
+
 
 # Data files
 data_folder: !ref ../../Tokenizer/results/data_prepared/<province_code>
+# data_folder: !ref ../../Tokenizer/results.데이터적을때-경상60까지수렴-1212/5K_subword_unigram_LM/<province_code>
 splited_wav_folder: same
 
 train_csv: !ref <data_folder>/train.csv
@@ -45,7 +49,7 @@ skip_prep: False
 # The global batch size is computed as batch_size * n_gpus * gradient_accumulation.
 # Empirically, we found that this value should be >= 128.
 # Please, set your parameters accordingly.
-number_of_epochs: 100
+number_of_epochs: 100 # 100
 batch_size: 32 # 32 This works for GPUs with 80GB
 ctc_weight: 0.3
 gradient_accumulation: 4

@@ -15,11 +15,13 @@ handlers:
 
   file_handler:
     class: logging.FileHandler
-    level: DEBUG
+    # level: DEBUG
+    level: INFO
     formatter: simple
     filename: log.txt
     encoding: utf8
 
 root:
-  level: DEBUG
+  # level: DEBUG
+  level: INFO
   handlers: [console, file_handler]

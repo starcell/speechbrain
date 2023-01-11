@@ -467,7 +467,8 @@ def dataio_prepare(hparams):
 if __name__ == "__main__":
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
-    print(hparams_file)
+    print(f'hparams_file : {hparams_file}')
+    print(f'run_opts : {run_opts}')
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
@@ -513,8 +514,12 @@ if __name__ == "__main__":
         checkpointer=hparams["checkpointer"],
     )
 
+    print(f'asr_brain.device : {asr_brain.device}')
+
     # adding objects to trainer:
-    asr_brain.tokenizer = hparams["tokenizer"]
+    # asr_brain.tokenizer = hparams["tokenizer"]
+    asr_brain.tokenizer = tokenizer
+    
 
     # Training
     asr_brain.fit(

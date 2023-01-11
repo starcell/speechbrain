@@ -44,6 +44,7 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
 def get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log, root_folder=None):
     # error_file = 'error_' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.txt'
     # error_file_path = os.path.join(data_save_path, error_file)
+    print(f'root_folder : {root_folder}')
     with open(error_file_log, 'w') as lf:
 
         for key_name in key_names:

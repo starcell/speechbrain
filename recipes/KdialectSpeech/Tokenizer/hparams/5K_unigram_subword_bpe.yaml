@@ -14,7 +14,8 @@ output_folder: !ref results/data_prepared/<province_code>
 
 # Data files
 ## skip_prep: False
-data_folder: !ref /data/MTDATA/fn-2-018/starcell/root # e.g., /path/to/KdialectSpeech
+data_folder: !ref /data/MTDATA/fn-2-018/root # e.g., /path/to/KdialectSpeech
+# data_folder: !ref /data/MTDATA/fn-2-018/starcell/root # e.g., /path/to/KdialectSpeech
 # splited_wav_folder: !ref <data_folder>/splited # 분리된 오디오 파일을 저장할 위치
 splited_wav_folder: same
 total_csv: !ref <output_folder>/total.csv

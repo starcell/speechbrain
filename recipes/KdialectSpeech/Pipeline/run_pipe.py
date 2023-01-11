@@ -68,7 +68,8 @@ if __name__ == "__main__":
         # data_save_path = secret_key = hparams["data_save_path"]
         os.makedirs(data_save_path, exist_ok=True)
 
-        get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log, root_folder='starcell/')
+        # get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log, root_folder='starcell/')
+        get_s3_files(s3, bucket_name, key_names, max_keys, data_save_path, error_file_log)
         #####
 
         ##### resample audio files
