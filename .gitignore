@@ -18,6 +18,8 @@
 
 *.csv
 
+*.yaml
+
 nohup.out
 
 test/
