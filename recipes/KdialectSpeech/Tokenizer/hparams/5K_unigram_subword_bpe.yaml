@@ -5,7 +5,7 @@
 #           N Park 2022
 # ############################################################################
 
-province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: total #['gw', 'gs', 'jl', 'jj', 'cc', 'total']
 # output_folder: !ref results/5K_subword_unigram_LM/<province_code>
 output_folder: !ref results/data_prepared/<province_code>
 # train_log: !ref <output_folder>/train_log.txt

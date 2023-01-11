@@ -36,6 +36,7 @@ run_provinces:
     # - jl
     - jj
     # - cc
+    # - total
 
 gpu_num: 4
 

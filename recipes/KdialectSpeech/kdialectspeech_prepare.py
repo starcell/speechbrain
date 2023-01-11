@@ -223,25 +223,30 @@ def check_kdialectspeech_folders(base_dir, province_code):
         If kdialectspeech is not found at the specified path.
     """
     # Checking if all the data directories exist
-
-    talk_dir = os.path.join(base_dir, 'people/talk/' + province_code)
+    if province_code == 'total':
+        talk_dir = os.path.join(base_dir, 'people/talk/')
+        say_dir = os.path.join(base_dir, 'person/say/')
+        st_dir = os.path.join(base_dir, 'person/st/')
+    else:
+        talk_dir = os.path.join(base_dir, 'people/talk/' + province_code)
+        say_dir = os.path.join(base_dir, 'person/say/' + province_code)
+        st_dir = os.path.join(base_dir, 'person/st/' + province_code)
+    
     if not os.path.exists(talk_dir):
         err_msg = (
             "the directory %s does not exist (it is expected in the "
             "kdialectspeech dataset)" % talk_dir
         )
         raise OSError(err_msg)
-
-    talk_dir = os.path.join(base_dir, 'person/say/' + province_code)
-    if not os.path.exists(talk_dir):
+    
+    if not os.path.exists(say_dir):
         err_msg = (
             "the directory %s does not exist (it is expected in the "
             "kdialectspeech dataset)" % talk_dir
         )
         raise OSError(err_msg)
-
-    talk_dir = os.path.join(base_dir, 'person/st/' + province_code)
-    if not os.path.exists(talk_dir):
+    
+    if not os.path.exists(st_dir):
         err_msg = (
             "the directory %s does not exist (it is expected in the "
             "kdialectspeech dataset)" % talk_dir
@@ -324,11 +329,18 @@ def get_kdialectspeech_files(base_dir, province_code, file_ext='json'):
         A list containing directories of the given data directory
 
     """
-    files = (
-        glob.glob(os.path.join(base_dir, 'people/talk/' + province_code + '/*/*.' + file_ext))
-        + glob.glob(os.path.join(base_dir, 'person/say/' + province_code + '/*/*.' + file_ext))
-        + glob.glob(os.path.join(base_dir, 'person/st/' + province_code + '/*/*.' + file_ext))
-    )
+    if province_code == 'total':
+        files = (
+            glob.glob(os.path.join(base_dir, 'people/talk/*/*/*.' + file_ext))
+            + glob.glob(os.path.join(base_dir, 'person/say/*/*/*.' + file_ext))
+            + glob.glob(os.path.join(base_dir, 'person/st/*/*/*.' + file_ext))
+        )
+    else:
+        files = (
+            glob.glob(os.path.join(base_dir, 'people/talk/' + province_code + '/*/*.' + file_ext))
+            + glob.glob(os.path.join(base_dir, 'person/say/' + province_code + '/*/*.' + file_ext))
+            + glob.glob(os.path.join(base_dir, 'person/st/' + province_code + '/*/*.' + file_ext))
+        )
 
     return files
 
