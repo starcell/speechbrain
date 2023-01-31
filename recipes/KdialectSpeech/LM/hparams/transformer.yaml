@@ -7,10 +7,10 @@
 # ############################################################################
 
 # Seed needs to be set at top of yaml, before objects with parameters are made
-seed: 5555
+seed: 7774
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
-province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: gw #['gw', 'gs', 'jl', 'jj', 'cc', 'total']
 
 output_folder: !ref results/Transformer/<seed>/<province_code>
 save_folder: !ref <output_folder>/save

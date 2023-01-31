@@ -26,8 +26,8 @@ def print_wer_summary(wer_details, file=sys.stdout):
     file : stream
         Where to write. (default: sys.stdout)
     """
-    print(
-        "%WER {WER:.2f} [ {num_edits} / {num_scored_tokens}, {insertions} ins, {deletions} del, {substitutions} sub ]".format(  # noqa
+    print( # %WER -> %SWER로 수정 ; 중노년층 방언 사업수행계획서에 맞추기
+        "%SWER {WER:.2f} [ {num_edits} / {num_scored_tokens}, {insertions} ins, {deletions} del, {substitutions} sub ]".format(  # noqa
             **wer_details
         ),
         file=file,

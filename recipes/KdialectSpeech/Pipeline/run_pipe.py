@@ -110,11 +110,12 @@ if __name__ == "__main__":
 
             if run_province == 'jj':
                 # cmd = ['python', 'train.py', 'hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu' + province_option] # 리스트로는 실행이 안됨
-                cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu ' + province_option
+                # cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu ' + province_option
+                cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml ' + province_option
             else:
                 # cmd = ['python', 'train.py', 'hparams/5K_unigram_subword_bpe.yaml', '--device=cpu', province_option] # 리스트로는 실행이 안됨
-                cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml --device=cpu ' + province_option
-                # cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml ' + province_option
+                # cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml --device=cpu ' + province_option
+                cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml ' + province_option # tokenizer는 CPU에서 계산됨
             
             logger.info(f'cmd : {cmd}')
             result = subprocess.run(cmd,

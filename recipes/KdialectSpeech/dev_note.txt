@@ -1,0 +1,24 @@
+SB 소스 수정(starcell branch에 수정)
+추론 에러 문제 
+https://github.com/speechbrain/speechbrain/issues/1590
+https://github.com/speechbrain/speechbrain/issues/1784
+
+Line 315 of https://github.com/speechbrain/speechbrain/blob/develop/speechbrain/lobes/models/transformer/TransformerASR.py
+
+encode() return 전에 아래 코드 추가
+
+    if self.attention_type == "RelPosMHAXL":
+        # FIXME we use pos embs also on enc output
+        encoder_out = encoder_out + self.positional_encoding_decoder(
+            encoder_out
+        )
+
+
+2023/01/31
+docker export [옵션] 컨테이너명|컨테이너ID > export받을 파일
+
+ex) docker export 9959ea671300 > kdialect-speech.tar
+
+import 방법(아래 두 가지 방법 중 하나)
+$docker import kdialect-speech-container.tar kdialect-speech:202212
+$cat kdialect-speech-container.tar  | docker import - kdialect-speech:202212

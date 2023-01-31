@@ -25,8 +25,8 @@ asr_dir: !ref <kdialect_base_dir>/ASR/Conformer
 
 # run modules
 run_modules:
-    - data_download
-    # - tokenizer
+    # - data_download
+    - tokenizer
     # - lm
     # - asr
 
@@ -47,12 +47,18 @@ pretrained_model_base: !ref <asr_dir>/Inference/pretrained-model-src
 
 ### 1. Data download
 ### MTData data : naver cloud storage
-### 접속 정보
+### 접속 정보 : S3 browser로 접속 가능(https://s3browser.com/?v=10.5.7&fam=x64)
+# account type : S3 Compatible Storage 
 service_name: s3
-endpoint_url: https://kr.object.ncloudstorage.com
+endpoint_url: https://kr.object.ncloudstorage.com # REST Endpoint : kr.object.ncloudstorage.com
 # storage_region_name: kr-standard
-access_key: 7NYHGkci0LTg3EAqu67w
-secret_key: 01cS8pqm6q0f63cJoVsIdy3CodwBjhjPnzr113rL
+
+# access_key: 7NYHGkci0LTg3EAqu67w
+# secret_key: 01cS8pqm6q0f63cJoVsIdy3CodwBjhjPnzr113rL
+
+# 2023/01/20 변경
+access_key: CFC82719368798749108
+secret_key: EFECA5B9A1361EBED93FFAF281560C8503BE197C
 
 bucket_name: fn-2-018
 max_keys: 1000
@@ -112,12 +118,24 @@ key_names:
     # - 0104Dataset
     # - 0105Dataset
     # - 0106Dataset
-
-    - 0107Dataset # 2023/0107  다운로드
-    - 0108Dataset
-    - 0109Dataset
-    - 0110Dataset
+    # - 0107Dataset # 2023/0107  다운로드
+    # - 0108Dataset
+    # - 0109Dataset
     
+    # - 0110Dataset
+    # - 0111Dataset
+    # - 0115Dataset
+    # - 0116Dataset   # 2023/0116 다운로드 (13시 25분 완료)
+    # - 0117Dataset
+    # - 0118Dataset
+    # - 0119Dataset
+    # - 0120Dataset   # 2023/0120 다운로드 (17시 완료), 25일 다시 받음
+    # - 0121Dataset
+    # - 0122Dataset
+    # - 0123Dataset
+
+    - 0125Dataset # 2023/01/25 15시 다운로드 30388 개
+
     
 smaplerate: 16000
 

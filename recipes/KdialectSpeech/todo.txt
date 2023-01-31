@@ -7,8 +7,8 @@ sWER 처리
     - self.swer_metric.append(ids, predicted_swords, target_words)
     - self.swer_metric.write_stats(w)
 
-2. log : metric_stats.py에서 %WER을 %sWER로 저장하도록 수정
-    - write_stats(self, filestream):
+2. log : dataio/wer.py에서 %WER을 %SWER로 저장하도록 수정
+    - print_wer_summary(): # 30행
 
 3. space normalize 함수 만들기
     - swer.ipynb 파일 내용을 참고하여 만들기
