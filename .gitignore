@@ -1,5 +1,6 @@
 # pretrained model files
 **/pretrained-model*/
+**/fine-tuned-model/
 **/ckpt/
 
 # csv file directory
@@ -19,6 +20,8 @@
 *.csv
 
 *.yaml
+
+*.ckpt
 
 nohup.out
 
