@@ -22,3 +22,21 @@ ex) docker export 9959ea671300 > kdialect-speech.tar
 import 방법(아래 두 가지 방법 중 하나)
 $docker import kdialect-speech-container.tar kdialect-speech:202212
 $cat kdialect-speech-container.tar  | docker import - kdialect-speech:202212
+
+
+
+swer 값을 구하도록 수정
+1) get_swords()구현
+    KdialectSpeech/kdialectspeech/swer.py 에 포함됨.
+    KdialectSpeech/kdialectspeech를 공통 라이브러리 디렉토리로 사용
+
+2) 위치
+    recipes/KdialectSpeech/kdialectspeech/wser.py
+
+3) train.py에서 사용
+    import sys
+    sys.path.append('../../kdialectspeech')
+    from swer import get_swords
+
+log : dataio/wer.py에서 %WER을 %SWER로 저장하도록 수정
+    - print_wer_summary(): # 30행

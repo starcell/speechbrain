@@ -8,10 +8,10 @@
 # Authors: Jianyuan Zhong, Titouan Parcollet, Samuele Cornell, Dongwon Kim, Dongwoo Kim
 # ############################################################################
 # Seed needs to be set at top of yaml, before objects with parameters are made
-seed: 5555
+seed: 7774
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
-province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc']
+province_code: jj #['gw', 'gs', 'jl', 'jj', 'cc']
 
 output_folder: !ref results/Conformer/<seed>/<province_code>
 wer_file: !ref <output_folder>/swer_test.txt
@@ -24,8 +24,8 @@ tb_log: !ref <output_folder>/tb_log # tensorboard용 디렉토리
 # tokenizer used for LM training.
 # pretrained_lm_tokenizer_path: !ref ../../LM/results/Transformer/2222/<province_code>/save
 
-# pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results/data_prepared/<province_code>
-pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results/data_prepared/total
+pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results/data_prepared/<province_code>
+# pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results/data_prepared/total
 # pretrained_lm_tokenizer_path: !ref ../../Tokenizer/results.데이터적을때-경상60까지수렴-1212/5K_subword_unigram_LM/<province_code>
 
 
@@ -50,7 +50,7 @@ skip_prep: False
 # The global batch size is computed as batch_size * n_gpus * gradient_accumulation.
 # Empirically, we found that this value should be >= 128.
 # Please, set your parameters accordingly.
-number_of_epochs: 110 # 100
+number_of_epochs: 10 # 100
 batch_size: 32 # 32 This works for GPUs with 80GB
 ctc_weight: 0.3
 gradient_accumulation: 4
@@ -102,7 +102,7 @@ unk_index: 0
 # Decoding parameters
 min_decode_ratio: 0.0
 max_decode_ratio: 1.0
-valid_search_interval: 100 # 10
+valid_search_interval: 10 # 10
 valid_beam_size: 10
 test_beam_size: 60
 lm_weight: 0.20
