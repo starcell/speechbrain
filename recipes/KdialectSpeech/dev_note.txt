@@ -26,7 +26,7 @@ $cat kdialect-speech-container.tar  | docker import - kdialect-speech:202212
 
 
 swer 값을 구하도록 수정
-1) get_swords()구현
+1) space_normalize_lists(list), get_swords(str)구현
     KdialectSpeech/kdialectspeech/swer.py 에 포함됨.
     KdialectSpeech/kdialectspeech를 공통 라이브러리 디렉토리로 사용
 
@@ -36,7 +36,7 @@ swer 값을 구하도록 수정
 3) train.py에서 사용
     import sys
     sys.path.append('../../kdialectspeech')
-    from swer import get_swords
+    from swer import space_normalize_lists
 
 log : dataio/wer.py에서 %WER을 %SWER로 저장하도록 수정
     - print_wer_summary(): # 30행
