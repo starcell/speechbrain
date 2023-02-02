@@ -43,18 +43,20 @@ from torch.utils.tensorboard import SummaryWriter # 중요, 맨
 ### 아래 모듈을 설치하라고 권고함.
 # !pip install -U torch-tb-profiler
 
-import os
+# import os
 import sys
-import numpy as np
+# import numpy as np
 import torch
 import logging
-from pathlib import Path
+# from pathlib import Path
 import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
 from speechbrain.utils.distributed import run_on_main
 
+# from datetime import datetime
+
 sys.path.append('../../kdialectspeech')
-from swer import get_swords, space_normalize_lists
+from swer import space_normalize_lists
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +113,7 @@ class ASR(sb.core.Brain):
                 # print(f' valid hyps : {hyps}')
         elif stage == sb.Stage.TEST:
             hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) # test_search와 valid_search의 차이는 LM 사용 여부
-            print(f' test hyps : {hyps}')
+            # print(f' test hyps : {hyps}')
         return p_ctc, p_seq, wav_lens, hyps
 
     def compute_objectives(self, predictions, batch, stage):
@@ -152,23 +154,26 @@ class ASR(sb.core.Brain):
                 ]
                 target_words = [wrd.split(" ") for wrd in batch.wrd]
 
+                print(f'----- target_words : {target_words}')
+                print(f'----- predicted_words : {predicted_words}')
+                swords_temp = []
                 for idx, target in enumerate(target_words):
-                    predicted_swords = space_normalize_lists(target, predicted_words[idx])
+                    # predicted_swords = space_normalize_lists(target, predicted_words[idx])
+                    swords_temp.append(space_normalize_lists(target, predicted_words[idx]))
+                predicted_swords = swords_temp
 
-                # print(f'predicted_swords : {predicted_swords}')
-                # predicted_swords = get_swords(target_words, predicted_words) # space normalized hyp words
+                print(f'ids : {ids}, predicted_swords : {predicted_swords}')
                 predicted_chars = [
                     list("".join(utt_seq)) for utt_seq in predicted_words
                 ]
                 target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
-                self.wer_metric.append(ids, predicted_words, target_words)
                 self.swer_metric.append(ids, predicted_swords, target_words)
+                self.wer_metric.append(ids, predicted_words, target_words)
                 self.cer_metric.append(ids, predicted_chars, target_chars)
 
             # compute the accuracy of the one-step-forward prediction
             self.acc_metric.append(p_seq, tokens_eos, tokens_eos_lens)
             
-        # logger.info(f'compute_objectives loss ----- : {loss}') # npark
         return loss
 
     def fit_batch(self, batch):
@@ -231,8 +236,8 @@ class ASR(sb.core.Brain):
         """Gets called at the beginning of each epoch"""
         if stage != sb.Stage.TRAIN:
             self.acc_metric = self.hparams.acc_computer()
-            self.wer_metric = self.hparams.error_rate_computer()
             self.swer_metric = self.hparams.error_rate_computer()
+            self.wer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
 
     def on_stage_end(self, stage, stage_loss, epoch):
@@ -249,8 +254,8 @@ class ASR(sb.core.Brain):
                 current_epoch % valid_search_interval == 0
                 or stage == sb.Stage.TEST
             ):
-                stage_stats["WER"] = self.wer_metric.summarize("error_rate")
                 stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
+                stage_stats["WER"] = self.wer_metric.summarize("error_rate")
                 stage_stats["CER"] = self.cer_metric.summarize("error_rate")
 
         # log stats and save checkpoint at end-of-epoch
@@ -282,6 +287,7 @@ class ASR(sb.core.Brain):
                 stats_meta={"Epoch loaded": self.hparams.epoch_counter.current},
                 test_stats=stage_stats,
             )
+            # print(f'self.hparams.wer_file : {self.hparams.wer_file}')
             with open(self.hparams.wer_file, "w") as w:
                 self.swer_metric.write_stats(w)
                 self.wer_metric.write_stats(w)
@@ -439,8 +445,8 @@ def dataio_prepare(hparams):
 if __name__ == "__main__":
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
-    print(f'hparams_file : {hparams_file}')
-    print(f'run_opts : {run_opts}')
+    # print(f'hparams_file : {hparams_file}')
+    # print(f'run_opts : {run_opts}')
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
@@ -486,7 +492,7 @@ if __name__ == "__main__":
         checkpointer=hparams["checkpointer"],
     )
 
-    print(f'asr_brain.device : {asr_brain.device}')
+    # print(f'asr_brain.device : {asr_brain.device}')
 
     # adding objects to trainer:
     # asr_brain.tokenizer = hparams["tokenizer"]
@@ -503,9 +509,6 @@ if __name__ == "__main__":
     )
 
     # Testing
-    asr_brain.hparams.wer_file = os.path.join(
-        hparams["output_folder"], "wer_test.txt"
-    )
     asr_brain.evaluate(
         test_data,
         max_key="ACC",

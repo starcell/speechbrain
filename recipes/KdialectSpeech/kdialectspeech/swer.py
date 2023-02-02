@@ -56,14 +56,14 @@ def get_swords(ref , hyp):
     hyp : str
         입력 문자열, 보통 중간에 공란이 있는 문장이다.
     '''
-    print(f'ref : {ref}')
-    print(f'hyp : {hyp}')
+    # print(f'ref : {ref}')
+    # print(f'hyp : {hyp}')
     refs = char_tokenizer(ref)
     hyps = char_tokenizer(hyp)
     ref_nospace = ref.replace(' ', '')
     hyp_nospace = hyp.replace(' ', '')
-    print(f'refs : {refs}')
-    print(f'hyps : {hyps}')
+    # print(f'refs : {refs}')
+    # print(f'hyps : {hyps}')
     rlen = len(refs)
     hlen = len(hyps)
     scores =  np.zeros((hlen+1, rlen+1), dtype=np.int32)
@@ -101,11 +101,11 @@ def get_swords(ref , hyp):
 
             c_hyp = hyps[last_h] if last_h == h-1 else ''
             c_ref = refs[last_r] if last_r == r-1 else ''
-            h, r = last_h, last_r
+        h, r = last_h, last_r
 
-            # do word-spacing normalization
-            if c_hyp.replace('_', '') == c_ref.replace('_', ''):
-                c_hyp = c_ref
+        # do word-spacing normalization
+        if c_hyp.replace('_', '') == c_ref.replace('_', ''):
+            c_hyp = c_ref
 
         ref_norm.append(c_ref)
         hyp_norm.append(c_hyp)
@@ -132,7 +132,21 @@ def space_normalize_lists(ref_list, hyp_list):
     ---------
     result : list
         ref_list에 띄어쓰기를 맞춘 hyp_list의 리스트
+
+    ex)
+    ---------
+    ref_list = ['나는', '어제', '양념치킨을', '먹었다']
+    hyp_list = ['나는어제', '치킨을먹었다']
+    output : ['나는', '어제치킨을', '먹었다']
     '''
+
+    if not (any(ref_list) and any(hyp_list)):
+        return hyp_list
+
+    while '' in hyp_list:
+        # print(f'hyp_list 1 : {hyp_list}')
+        hyp_list.remove('')
+        # print(f'hyp_list 2 : {hyp_list}')
 
     ref_nospace = ''.join(ref_list)
     hyp_nospace = ''.join(hyp_list)
@@ -162,7 +176,6 @@ def space_normalize_lists(ref_list, hyp_list):
     
     # print(f'lev scores--------------------------')
     # print(scores)
-
     
     # traceback and compute alignment
     h, r = hlen, rlen
@@ -186,14 +199,16 @@ def space_normalize_lists(ref_list, hyp_list):
 
             c_hyp = hyps[last_h] if last_h == h-1 else ''
             c_ref = refs[last_r] if last_r == r-1 else ''
-            h, r = last_h, last_r
 
-            # do word-spacing normalization
-            if c_hyp.replace('_', '') == c_ref.replace('_', ''):
-                c_hyp = c_ref
+        h, r = last_h, last_r
+
+        # do word-spacing normalization
+        if c_hyp.replace('_', '') == c_ref.replace('_', ''):
+            c_hyp = c_ref
 
         ref_norm.append(c_ref)
         hyp_norm.append(c_hyp)
+    # print(f'after while : r={r}, h={h}')
 
     while '' in ref_norm:
         ref_norm.remove('')
@@ -202,5 +217,9 @@ def space_normalize_lists(ref_list, hyp_list):
     # print(f'norm--------------------------')
     # print(f'ref_norm : {ref_norm[::-1]}')
     # print(f'hyp_norm : {hyp_norm[::-1]}')
+    print(f'hyp_norm[::-1] : {hyp_norm[::-1]}')
+    shyp = ''.join(hyp_norm[::-1]).split('_')
 
-    return hyp_norm[::-1]
+    print(f'shyp : {shyp}')
+
+    return shyp

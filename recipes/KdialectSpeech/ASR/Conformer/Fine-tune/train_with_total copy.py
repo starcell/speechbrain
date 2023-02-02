@@ -54,9 +54,6 @@ from speechbrain.utils.distributed import run_on_main
 from speechbrain.pretrained import EncoderDecoderASR
 from speechbrain.utils.parameter_transfer import Pretrainer
 
-sys.path.append('../../../kdialectspeech')
-from swer import space_normalize_lists
-
 logger = logging.getLogger(__name__)
 
 # Define training procedure
@@ -155,17 +152,10 @@ class ASR(sb.core.Brain):
                 ]
                 target_words = [wrd.split(" ") for wrd in batch.wrd]
 
-                swords_temp = []
-                for idx, target in enumerate(target_words):
-                    # predicted_swords = space_normalize_lists(target, predicted_words[idx])
-                    swords_temp.append(space_normalize_lists(target, predicted_words[idx]))
-                predicted_swords = swords_temp
-
                 predicted_chars = [
                     list("".join(utt_seq)) for utt_seq in predicted_words
                 ]
                 target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
-                self.swer_metric.append(ids, predicted_swords, target_words)
                 self.wer_metric.append(ids, predicted_words, target_words)
                 self.cer_metric.append(ids, predicted_chars, target_chars)
 
@@ -218,8 +208,8 @@ class ASR(sb.core.Brain):
         """Gets called at the beginning of each epoch"""
         if stage != sb.Stage.TRAIN:
             self.acc_metric = self.hparams.acc_computer()
-            self.swer_metric = self.hparams.error_rate_computer()
             self.wer_metric = self.hparams.error_rate_computer()
+            # self.swer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
         # else:
         #     for module in [self.modules.CNN, self.modules.Transformer, self.modules.seq_lin, self.modules.ctc_lin]:
@@ -240,8 +230,8 @@ class ASR(sb.core.Brain):
                 current_epoch % valid_search_interval == 0
                 or stage == sb.Stage.TEST
             ):
-                stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
                 stage_stats["WER"] = self.wer_metric.summarize("error_rate")
+                # stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
                 stage_stats["CER"] = self.cer_metric.summarize("error_rate")
 
         # log stats and save checkpoint at end-of-epoch
@@ -274,7 +264,7 @@ class ASR(sb.core.Brain):
                 test_stats=stage_stats,
             )
             with open(self.hparams.wer_file, "w") as w:
-                self.swer_metric.write_stats(w)
+                # self.swer_metric.write_stats(w)
                 self.wer_metric.write_stats(w)
                 self.cer_metric.write_stats(w)
 

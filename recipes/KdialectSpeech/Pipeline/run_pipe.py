@@ -21,8 +21,9 @@ from hyperpyyaml import load_hyperpyyaml
 
 import boto3
 
-from kdialectspeech.s3_download import get_s3_files
-from kdialectspeech.resample import resample_audio
+sys.path.append('../kdialectspeech')
+from s3_download import get_s3_files
+from resample import resample_audio
 
 # print(os.path.dirname(os.path.abspath(__file__)))
 # print(__file__)
@@ -108,14 +109,15 @@ if __name__ == "__main__":
             tokenizer_dir = hparams["tokenizer_dir"]
             logger.info(f'tokenizer_dir : {tokenizer_dir}')
 
-            if run_province == 'jj':
-                # cmd = ['python', 'train.py', 'hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu' + province_option] # 리스트로는 실행이 안됨
-                # cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu ' + province_option
-                cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml ' + province_option
-            else:
-                # cmd = ['python', 'train.py', 'hparams/5K_unigram_subword_bpe.yaml', '--device=cpu', province_option] # 리스트로는 실행이 안됨
-                # cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml --device=cpu ' + province_option
-                cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml ' + province_option # tokenizer는 CPU에서 계산됨
+            cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml ' + province_option # tokenizer는 CPU에서 계산됨
+            # if run_province == 'jj':
+            #     # cmd = ['python', 'train.py', 'hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu' + province_option] # 리스트로는 실행이 안됨
+            #     # cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml --device=cpu ' + province_option
+            #     cmd = 'python train.py hparams/1K_unigram_subword_bpe_jj.yaml ' + province_option
+            # else:
+            #     # cmd = ['python', 'train.py', 'hparams/5K_unigram_subword_bpe.yaml', '--device=cpu', province_option] # 리스트로는 실행이 안됨
+            #     # cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml --device=cpu ' + province_option
+            #     cmd = 'python train.py hparams/5K_unigram_subword_bpe.yaml ' + province_option # tokenizer는 CPU에서 계산됨
             
             logger.info(f'cmd : {cmd}')
             result = subprocess.run(cmd,
@@ -133,10 +135,12 @@ if __name__ == "__main__":
                 if hparams['copy_trained_model']:
 
                     token_result_dir = os.path.join(tokenizer_dir, 'results/data_prepared/' + run_province)
-                    if run_province == 'jj': 
-                        tokenizer =  os.path.join(token_result_dir, '1000_unigram.model')
-                    else:
-                        tokenizer =  os.path.join(token_result_dir, '5000_unigram.model')
+                    tokenizer =  os.path.join(token_result_dir, '5000_unigram.model')
+
+                    # if run_province == 'jj': 
+                    #     tokenizer =  os.path.join(token_result_dir, '1000_unigram.model')
+                    # else:
+                    #     tokenizer =  os.path.join(token_result_dir, '5000_unigram.model')
 
                     # copy to pretrained_model_dir
                     tokenizer_target = os.path.join(pretrained_model_dir, 'tokenizer.ckpt')
