@@ -114,7 +114,6 @@ def get_swords(ref , hyp):
     shyp = ''.join(map(str, hyp_norm[::-1])).replace('_', ' ')
     return shyp
 
-
 def space_normalize_lists(ref_list, hyp_list):
     '''
     두 개의 단어들의 리스트를 비교하여 띄어쓰기를 맞추어 준다.(space normalize)
@@ -162,7 +161,6 @@ def space_normalize_lists(ref_list, hyp_list):
     hlen = len(hyps)
     scores =  np.zeros((hlen+1, rlen+1), dtype=np.int32)
 
-
     # initialize, 공란을 무시하고 음절의 거리 매트릭스 만들기
     for r in range(rlen+1):
         scores[0, r] = r
@@ -201,7 +199,6 @@ def space_normalize_lists(ref_list, hyp_list):
             c_ref = refs[last_r] if last_r == r-1 else ''
 
         h, r = last_h, last_r
-
         # do word-spacing normalization
         if c_hyp.replace('_', '') == c_ref.replace('_', ''):
             c_hyp = c_ref
@@ -217,9 +214,7 @@ def space_normalize_lists(ref_list, hyp_list):
     # print(f'norm--------------------------')
     # print(f'ref_norm : {ref_norm[::-1]}')
     # print(f'hyp_norm : {hyp_norm[::-1]}')
-    print(f'hyp_norm[::-1] : {hyp_norm[::-1]}')
+    # print(f'hyp_norm[::-1] : {hyp_norm[::-1]}')
     shyp = ''.join(hyp_norm[::-1]).split('_')
-
-    print(f'shyp : {shyp}')
-
+    # print(f'shyp : {shyp}')
     return shyp
