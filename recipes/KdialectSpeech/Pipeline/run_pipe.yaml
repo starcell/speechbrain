@@ -25,8 +25,8 @@ asr_dir: !ref <kdialect_base_dir>/ASR/Conformer
 
 # run modules
 run_modules:
-    # - data_download
-    - tokenizer
+    - data_download
+    # - tokenizer
     # - lm
     # - asr
 
@@ -135,6 +135,28 @@ key_names:
     # - 0123Dataset
 
     - 0125Dataset # 2023/01/25 15시 다운로드 30388 개
+    - 0126Dataset
+    - 0127Dataset
+    - 0128Dataset
+    - 0129Dataset
+    - 0130Dataset
+    - 0131Dataset
+    - 0201Dataset
+    - 0202Dataset
+    - 0203Dataset
+    - 0204Dataset
+    - 0205Dataset
+    - 0206Dataset
+    - 0207Dataset
+    - 0208Dataset
+    - 0209Dataset
+    - 0210Dataset
+    - 0211Dataset
+    - 0212Dataset
+    - 0213Dataset
+    - 0214Dataset
+
+    - 0215Dataset # 2023/02/15 저녁 다운로드 시작
 
     
 smaplerate: 16000
@@ -144,7 +166,7 @@ tokenizer_dict: # provice_code : token_output: 5000
    gw: 5000
    gs: 5000
    jl: 5000
-   jj: 1000
+   jj: 5000
    cc: 5000
 
 ### 3. LM(언어모델)
