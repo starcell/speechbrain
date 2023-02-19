@@ -8,7 +8,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename=sys.argv[0] + ".log", level = logging.INFO, datefmt = '%Y-%m-%d %H%M%S'
-                   ,format = '%(asctime)s | %(levelname)s | $(message)s')
+                   ,format = '%(asctime)s | %(levelname)s | %(message)s')
+
+NO_VALUE = "no_value"
 
 def make_csv_lines(json_file_path):
     csv_lines = []
@@ -17,37 +19,110 @@ def make_csv_lines(json_file_path):
     with open(json_file_path, encoding="UTF-8" ) as json_file :
         json_data = json.load(json_file)
 
+    try:
         speakers = json_data["speaker"]
+    except:
+        logger.info(f"no speakers, file_name : {json_file_path}")
+        return []
+
+    try:
         sentences = json_data["transcription"]["sentences"]
-        
+    except:
+        logger.info(f"no sentences, file_name : {json_file_path}")
+        return []
+
+    try:
         annotations = json_data["annotation"]
+    except:
+        logger.info(f"no annotations, file_name : {json_file_path}")
+        return []
+    
+    try:
         intents = annotations["intents"]
-        emotions = annotations["emotions"]
-        grammarTypes = annotations["grammarTypes"]
-
-        for speaker in speakers :
-            speaker_id = speaker["speakerId"]
-            residence_province = speaker["residenceProvince"]
-            gender = speaker["gender"]
-            birth_year = speaker["birthYear"]
+    except:
+        logger.info(f"no intents, file_name : {json_file_path}")
+        intents = []
             
+    try:
+        emotions = annotations["emotions"]
+    except:
+        logger.info(f"no emotions, file_name : {json_file_path}")
+        emotions = []
+            
+    try:
+        grammarTypes = annotations["grammarTypes"]
+    except:
+        logger.info(f"no grammarTypes, file_name : {json_file_path}")
+        grammarTypes = []
+    
+    for speaker in speakers :
+        try:
+            speaker_id = speaker["speakerId"]
+        except:
+            return []
+        
+        try:
+            residence_province = speaker["residenceProvince"]
+        except:
+            residence_province = NO_VALUE
+            logger.info(f"no residence_province, file_name : {json_file_path}")
+
+        try:
+            gender = speaker["gender"]
+        except:
+            gender = NO_VALUE
+            logger.info(f"no gender, file_name : {json_file_path}")
+
+        try:
+            birth_year = speaker["birthYear"]
+        except:
+            birth_year = NO_VALUE
+            logger.info(f"no birth_year, file_name : {json_file_path}")
+        
+        try:
             sentence_ids_of_speaker = [sentence["sentenceId"] for sentence in sentences if sentence["speakerId"] == speaker_id]
+        except:
+            logger.info(f"no sentenceId, file_name : {json_file_path}")
+            return []
 
-            lines = []
+        lines = []
+        if sentence_ids_of_speaker:
             for sentence_id in sentence_ids_of_speaker:
+                if intents:
+                    for intent in intents:
+                        if intent["sentenceId"] == sentence_id:
+                            try:
+                                intent_type = intent["tagType"]
+                            except:
+                                intent_type = NO_VALUE
 
-                for intent in intents:
-                    if intent["sentenceId"] == sentence_id:
-                        intent_type = intent["tagType"]
-                        intent_category = intent["categoryName"]
+                            try:
+                                intent_category = intent["categoryName"]
+                            except:
+                                intent_category = NO_VALUE
+                else:
+                    intent_type = "no_intents"
+                    intent_category = "no_intents"
 
-                for emotion in emotions:
-                    if emotion["sentenceId"] == sentence_id:
-                        emotion_type = emotion["tagType"]
+                if emotions:
+                    for emotion in emotions:
+                        if emotion["sentenceId"] == sentence_id:
+                            try:
+                                emotion_type = emotion["tagType"]
+                            except:
+                                emotion_type = NO_VALUE
+                else:
+                    emotion_type = "no_emotions"
 
-                for grammarType in grammarTypes:
-                    if grammarType["sentenceId"] == sentence_id:
-                        grammar_type = grammarType["tagType"]
+                if grammarTypes:
+                    for grammarType in grammarTypes:
+                        if grammarType["sentenceId"] == sentence_id:
+                            try:
+                                grammar_type = grammarType["tagType"]
+                            except:
+                                grammar_type = NO_VALUE
+                else:
+                    grammar_type = "no_grammarTypes"
 
                 line = [
                     json_file_name, speaker_id, residence_province, gender, birth_year,
@@ -56,6 +131,7 @@ def make_csv_lines(json_file_path):
                 
                 lines.append(line)
 
+        if lines:
             csv_lines.extend(lines)
 
     return csv_lines
@@ -84,15 +160,16 @@ def get_json_files(json_dir):
 def main(json_dir, csv_file):
     logger.info(f'extract start -----')
     json_files = get_json_files(json_dir)
-    csv_data = []
     for json_file in json_files:
-        csv_data.extend(make_csv_lines(json_file))
-
-    csv_df = pd.DataFrame(csv_data, columns=[
-        "json_file_name", "speaker_id", "residence_province", "gender", "birth_year",
-        "sentence_id", "intent_type", "intent_category", "emotion_type", "grammar_type"
-    ])
-    csv_df.to_csv(csv_file, encoding="UTF-8")
+        if make_csv_lines(json_file):
+            csv_df = pd.DataFrame(make_csv_lines(json_file), columns=[
+                "json_file_name", "speaker_id", "residence_province", "gender", "birth_year",
+                "sentence_id", "intent_type", "intent_category", "emotion_type", "grammar_type"
+            ])
+            if not os.path.exists(csv_file):
+                csv_df.to_csv(csv_file, index=False, mode="w", encoding="UTF-8")
+            else:
+                csv_df.to_csv(csv_file, index=False, mode="a", encoding="UTF-8", header=False)
     logger.info(f'extract end -----')
 
 
