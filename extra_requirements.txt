@@ -1,2 +1,2 @@
--r lint-requirements.txt
+pydub==0.25.1
 boto3

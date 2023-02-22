@@ -7,14 +7,13 @@ Dongwon Kim, Dongwoo Kim 2021
 N Park, WS Kang 2022 # for KdialectSpeech dataset, split wav file
 
 apt install ffmpeg
-pip install pydub # pydub는 ffmpeg를 필요로 함.
+pydub는 ffmpeg를 필요로 함.
 """
 import logging
 import os
 import glob
 from pathlib import Path
 import re
-
 from speechbrain.dataio.dataio import load_pkl, merge_csvs, save_pkl
 # from speechbrain.utils.data_utils import get_all_files
 
@@ -22,16 +21,12 @@ from speechbrain.dataio.dataio import load_pkl, merge_csvs, save_pkl
 import pandas as pd
 import json
 import os
-
-# conda install -c conda-forge pydub
 from pydub import AudioSegment
-# conda install ffmpeg
 
 logger = logging.getLogger(__name__)
 
 OPT_FILE = "opt_kdialectspeech_prepare.pkl"
 SAMPLERATE = 16000
-
 
 def prepare_kdialectspeech(
     data_folder,

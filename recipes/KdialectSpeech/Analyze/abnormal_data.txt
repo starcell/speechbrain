@@ -1,0 +1,4 @@
+/data/MTDATA/fn-2-018/root/person/st/gs/collectorgs32/st_set3_collectorgs32_speakergs1230_15_8.json : 시간 오류
+
+/data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.json : 긴 문장
+/data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.wav
