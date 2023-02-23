@@ -8,13 +8,13 @@ from speechbrain.pretrained import EncoderDecoderASR
 from speechbrain.utils.metric_stats import ErrorRateStats
 import IPython.display as ipd
 
-provice_code = 'kspon'
+province_code = 'kspon'
 
 pretrained_model_src_dir = 'pretrained-model-src'
 pretrained_model_save_dir = 'pretrained-model-save'
 
-source = os.path.join(pretrained_model_src_dir, provice_code)
-savedir = os.path.join(pretrained_model_save_dir, provice_code)
+source = os.path.join(pretrained_model_src_dir, province_code)
+savedir = os.path.join(pretrained_model_save_dir, province_code)
 
 asr_model = EncoderDecoderASR.from_hparams(
     source=source,

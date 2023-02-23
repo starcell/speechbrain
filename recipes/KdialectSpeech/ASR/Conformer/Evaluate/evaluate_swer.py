@@ -69,23 +69,10 @@ class ASR(sb.core.Brain):
         wavs, wav_lens = batch.sig
         tokens_bos, _ = batch.tokens_bos
 
-        # Add augmentation if specified
-        ### kdialectspeech, ksponspeech, librispeech 에서는 사용안함, template 예제에서 사용
-        if stage == sb.Stage.TRAIN:
-            if hasattr(self.modules, "env_corrupt"):
-                wavs_noise = self.modules.env_corrupt(wavs, wav_lens)
-                wavs = torch.cat([wavs, wavs_noise], dim=0)
-                wav_lens = torch.cat([wav_lens, wav_lens])
-                tokens_bos = torch.cat([tokens_bos, tokens_bos], dim=0)
-
         # compute features
         feats = self.hparams.compute_features(wavs)
         current_epoch = self.hparams.epoch_counter.current
         feats = self.modules.normalize(feats, wav_lens, epoch=current_epoch)
-
-        if stage == sb.Stage.TRAIN:
-            if hasattr(self.hparams, "augmentation"):
-                feats = self.hparams.augmentation(feats)
 
         # forward modules
         src = self.modules.CNN(feats)
@@ -127,14 +114,6 @@ class ASR(sb.core.Brain):
         tokens_eos, tokens_eos_lens = batch.tokens_eos
         tokens, tokens_lens = batch.tokens
 
-        if hasattr(self.modules, "env_corrupt") and stage == sb.Stage.TRAIN:
-            tokens_eos = torch.cat([tokens_eos, tokens_eos], dim=0)
-            tokens_eos_lens = torch.cat(
-                [tokens_eos_lens, tokens_eos_lens], dim=0
-            )
-            tokens = torch.cat([tokens, tokens], dim=0)
-            tokens_lens = torch.cat([tokens_lens, tokens_lens], dim=0)
-
         loss_seq = self.hparams.seq_cost(
             p_seq, tokens_eos, length=tokens_eos_lens
         )
@@ -172,39 +151,6 @@ class ASR(sb.core.Brain):
             # compute the accuracy of the one-step-forward prediction
             self.acc_metric.append(p_seq, tokens_eos, tokens_eos_lens)
         return loss
-
-    def fit_batch(self, batch):
-        """Train the parameters given a single batch in input"""
-        # check if we need to switch optimizer
-        # if so change the optimizer from Adam to SGD
-        
-        self.check_and_reset_optimizer()
-
-        predictions = self.compute_forward(batch, sb.Stage.TRAIN)
-        loss = self.compute_objectives(predictions, batch, sb.Stage.TRAIN)
-
-        # normalize the loss by gradient_accumulation step
-        (loss / self.hparams.gradient_accumulation).backward()
-
-        if self.step % self.hparams.gradient_accumulation == 0:
-            # gradient clipping & early stop if loss is not fini
-            self.check_gradients(loss)
-
-            self.optimizer.step()
-            self.optimizer.zero_grad()
-
-            # anneal lr every update
-            self.hparams.noam_annealing(self.optimizer)
-
-            if isinstance(
-                self.hparams.train_logger,
-                sb.utils.train_logger.TensorboardLogger,
-            ):
-                self.hparams.train_logger.log_stats(
-                    stats_meta={"step": self.step}, train_stats={"loss": loss},
-                )
-
-        return loss.detach()
 
     def evaluate_batch(self, batch, stage):
         """Computations needed for validation/test batches"""        
@@ -307,42 +253,18 @@ class ASR(sb.core.Brain):
 
             self.switched = True
 
-    def on_fit_start(self):
-        """Initialize the right optimizer on the training start"""
-        super().on_fit_start()
-
-        # if the model is resumed from stage two, reinitialize the optimizer
-        current_epoch = self.hparams.epoch_counter.current
-        current_optimizer = self.optimizer
-        if current_epoch > self.hparams.stage_one_epochs:
-            del self.optimizer
-            self.optimizer = self.hparams.SGD(self.modules.parameters())
-
-            # Load latest checkpoint to resume training if interrupted
-            if self.checkpointer is not None:
-
-                # do not reload the weights if training is interrupted
-                # right before stage 2
-                group = current_optimizer.param_groups[0]
-                if "momentum" not in group:
-                    return
-
-                self.checkpointer.recover_if_possible(
-                    device=torch.device(self.device)
-                )
-
     def on_evaluate_start(self, max_key=None, min_key=None):
         """perform checkpoint averge if needed"""
         super().on_evaluate_start()
 
-        ckpts = self.checkpointer.find_checkpoints(
-            max_key=max_key, min_key=min_key
-        )
-        ckpt = sb.utils.checkpoints.average_checkpoints(
-            ckpts, recoverable_name="model", device=self.device
-        )
+        # ckpts = self.checkpointer.find_checkpoints(
+        #     max_key=max_key, min_key=min_key
+        # )
+        # ckpt = sb.utils.checkpoints.average_checkpoints(
+        #     ckpts, recoverable_name="model", device=self.device
+        # )
 
-        self.hparams.model.load_state_dict(ckpt, strict=True)
+        # self.hparams.model.load_state_dict(ckpt, strict=True)
         self.hparams.model.eval()
 
 
@@ -352,42 +274,13 @@ def dataio_prepare(hparams):
     functions."""
     data_folder = hparams["data_folder"]
 
-    train_data = sb.dataio.dataset.DynamicItemDataset.from_csv(
-        csv_path=hparams["train_csv"], replacements={"data_root": data_folder},
-    )
-
-    if hparams["sorting"] == "ascending":
-        # we sort training data to speed up training and get better results.
-        train_data = train_data.filtered_sorted(sort_key="duration")
-        # when sorting do not shuffle in dataloader ! otherwise is pointless
-        hparams["train_dataloader_opts"]["shuffle"] = False
-
-    elif hparams["sorting"] == "descending":
-        train_data = train_data.filtered_sorted(
-            sort_key="duration", reverse=True
-        )
-        # when sorting do not shuffle in dataloader ! otherwise is pointless
-        hparams["train_dataloader_opts"]["shuffle"] = False
-
-    elif hparams["sorting"] == "random":
-        pass
-
-    else:
-        raise NotImplementedError(
-            "sorting must be random, ascending or descending"
-        )
-        
-    valid_data = sb.dataio.dataset.DynamicItemDataset.from_csv(
-        csv_path=hparams["valid_csv"], replacements={"data_root": data_folder},
-    )
-    valid_data = valid_data.filtered_sorted(sort_key="duration", reverse=True)
-
     test_data = sb.dataio.dataset.DynamicItemDataset.from_csv(
         csv_path=hparams["test_csv"], replacements={"data_root": data_folder},
     )
     test_data = test_data.filtered_sorted(sort_key="duration", reverse=True)
 
-    datasets = [train_data, valid_data, test_data]
+    datasets = [test_data]
+    logger.info(f'datasets :\n {datasets}')
 
     # We get the tokenizer as we need it to encode the labels when creating
     # mini-batches.
@@ -424,7 +317,7 @@ def dataio_prepare(hparams):
     sb.dataio.dataset.set_output_keys(
         datasets, ["id", "sig", "wrd", "tokens_bos", "tokens_eos", "tokens"],
     )
-    return train_data, valid_data, test_data, tokenizer
+    return test_data, tokenizer
 
 
 if __name__ == "__main__":
@@ -439,31 +332,16 @@ if __name__ == "__main__":
     # create ddp_group with the right communication protocol
     sb.utils.distributed.ddp_init_group(run_opts)
 
-    # 1.  # Dataset prep (parsing KsponSpeech)
-    from kdialectspeech_prepare import prepare_kdialectspeech  # noqa
-
     # Create experiment directory
+    print(f'output_folder : {hparams["output_folder"]}')
     sb.create_experiment_directory(
         experiment_directory=hparams["output_folder"],
         hyperparams_to_save=hparams_file,
         overrides=overrides,
     )
 
-    # multi-gpu (ddp) save data preparation
-    run_on_main(
-        prepare_kdialectspeech,
-        kwargs={
-            "data_folder": hparams["data_folder"],
-            "splited_wav_folder": hparams["splited_wav_folder"],
-            "save_folder": hparams["data_folder"],
-            "province_code": hparams["province_code"],
-            "data_ratio": hparams["data_ratio"],
-            "skip_prep": hparams["skip_prep"],
-        },
-    )
-
     # here we create the datasets objects as well as tokenization and encoding
-    train_data, valid_data, test_data, tokenizer = dataio_prepare(hparams)
+    test_data, tokenizer = dataio_prepare(hparams)
 
     if 'pretrainer' in hparams.keys():
         run_on_main(hparams["pretrainer"].collect_files)
@@ -478,26 +356,12 @@ if __name__ == "__main__":
         checkpointer=hparams["checkpointer"]
         )
 
-    print(f'asr_brain.device 2 : {asr_brain.device}')
-
     asr_brain.tokenizer = tokenizer
 
     # adding objects to trainer:
     # asr_brain.tokenizer = hparams["tokenizer"]
 
-    # Training
-    asr_brain.fit(
-        asr_brain.hparams.epoch_counter,
-        train_data,
-        valid_data,
-        train_loader_kwargs=hparams["train_dataloader_opts"],
-        valid_loader_kwargs=hparams["valid_dataloader_opts"],
-    )
-
     # Testing
-    # asr_brain.hparams.wer_file = os.path.join(
-    #     hparams["output_folder"], "wer_test.txt"
-    # )
     asr_brain.evaluate(
         test_data,
         max_key="ACC",
