@@ -1,3 +1,11 @@
+2023년 2월 23일
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
+    -> 이런 경우 --device cpu 옵션으로 실행하면 실행됨. 하지만 GPU에서 실행해야 하는 경우 수정 필요
+
+
+
+2022년 11월
+
 SB 소스 수정(starcell branch에 수정)
 추론 에러 문제 
 https://github.com/speechbrain/speechbrain/issues/1590

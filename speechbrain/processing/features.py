@@ -1113,6 +1113,10 @@ class InputNormalization(torch.nn.Module):
 
                     self.count = self.count + 1
 
+                # print(f'features ----------')
+                # print(f'x ----- : {x}')                
+                # print(f'self.glob_mean.data ----- : {self.glob_mean.data}')
+                # print(f'self.glob_std.data ----- : {self.glob_std.data}')
                 x = (x - self.glob_mean.data) / (self.glob_std.data)
 
         return x

@@ -36,14 +36,7 @@ Authors
  * Dongwon Kim, Dongwoo Kim 2021
  * N Park 2022
 """
-### speechbrain.utils.train_logger.TensorboardLogger를 사용하기 위해 필요, yaml에서 설정됨
-from torch.utils.tensorboard import SummaryWriter # 중요, 맨 
-# 처음 임포트해야 함, speechbrain을 먼저 임포트하도 나중에 임포드 하면 segmentation fault 오류남 
 
-### 아래 모듈을 설치하라고 권고함.
-# !pip install -U torch-tb-profiler
-
-import os
 import sys
 import torch
 import logging
@@ -71,7 +64,7 @@ class ASR(sb.core.Brain):
 
         # compute features
         feats = self.hparams.compute_features(wavs)
-        current_epoch = self.hparams.epoch_counter.current
+        current_epoch = self.hparams.epoch_counter.current  # test에서 이 값은 0 (int)
         feats = self.modules.normalize(feats, wav_lens, epoch=current_epoch)
 
         # forward modules
@@ -88,22 +81,13 @@ class ASR(sb.core.Brain):
         pred = self.modules.seq_lin(pred)
         p_seq = self.hparams.log_softmax(pred)
 
-        # print(f'enc_out size : {enc_out.size()}')
         # Compute outputs
         hyps = None
-        if stage == sb.Stage.TRAIN:
-            hyps = None
-        elif stage == sb.Stage.VALID:
-            hyps = None
-            current_epoch = self.hparams.epoch_counter.current
-            if current_epoch % self.hparams.valid_search_interval == 0:
-                # for the sake of efficiency, we only perform beamsearch with
-                # limited capacity and no LM to give user some idea of
-                # how the AM is doing
-                hyps, _ = self.hparams.valid_search(enc_out.detach(), wav_lens)
-        elif stage == sb.Stage.TEST:
+        if stage == sb.Stage.TEST:
             hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) 
-        return p_ctc, p_seq, wav_lens, hyps
+            return p_ctc, p_seq, wav_lens, hyps
+        else:
+            return None
 
     def compute_objectives(self, predictions, batch, stage):
         """Computes the loss (CTC+NLL) given predictions and targets."""
@@ -122,34 +106,31 @@ class ASR(sb.core.Brain):
             self.hparams.ctc_weight * loss_ctc
             + (1 - self.hparams.ctc_weight) * loss_seq
         )
-        if stage != sb.Stage.TRAIN:
-            current_epoch = self.hparams.epoch_counter.current
-            valid_search_interval = self.hparams.valid_search_interval
-            if current_epoch % valid_search_interval == 0 or (
-                stage == sb.Stage.TEST
-            ):
-                # Decode token terms to words
-                predicted_words = [
-                    tokenizer.decode_ids(utt_seq).split(" ") for utt_seq in hyps
-                ]
-                target_words = [wrd.split(" ") for wrd in batch.wrd]
+        if stage == sb.Stage.TEST:
+            # Decode token terms to words
+            predicted_words = [
+                tokenizer.decode_ids(utt_seq).split(" ") for utt_seq in hyps
+            ]
+            target_words = [wrd.split(" ") for wrd in batch.wrd]
 
-                swords_temp = []
-                for idx, target in enumerate(target_words):
-                    # predicted_swords = space_normalize_lists(target, predicted_words[idx])
-                    swords_temp.append(space_normalize_lists(target, predicted_words[idx]))
-                predicted_swords = swords_temp
+            swords_temp = []
+            for idx, target in enumerate(target_words):
+                swords_temp.append(space_normalize_lists(target, predicted_words[idx]))
+            predicted_swords = swords_temp
 
-                predicted_chars = [
-                    list("".join(utt_seq)) for utt_seq in predicted_words
-                ]
-                target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
-                self.swer_metric.append(ids, predicted_swords, target_words)
-                self.wer_metric.append(ids, predicted_words, target_words)
-                self.cer_metric.append(ids, predicted_chars, target_chars)
+            predicted_chars = [
+                list("".join(utt_seq)) for utt_seq in predicted_words
+            ]
+            target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
+            self.swer_metric.append(ids, predicted_swords, target_words)
+            self.wer_metric.append(ids, predicted_words, target_words)
+            self.cer_metric.append(ids, predicted_chars, target_chars)
 
             # compute the accuracy of the one-step-forward prediction
             self.acc_metric.append(p_seq, tokens_eos, tokens_eos_lens)
+        else:
+            raise Exception(f"Evaluation only, other stage not")
+
         return loss
 
     def evaluate_batch(self, batch, stage):
@@ -162,67 +143,34 @@ class ASR(sb.core.Brain):
 
     def on_stage_start(self, stage, epoch):
         """Gets called at the beginning of each epoch"""
-        if stage != sb.Stage.TRAIN:
+        if stage == sb.Stage.TEST:
             self.acc_metric = self.hparams.acc_computer()
             self.swer_metric = self.hparams.error_rate_computer()
             self.wer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
-        # else:
-        #     for module in [self.modules.CNN, self.modules.Transformer, self.modules.seq_lin, self.modules.ctc_lin]:
-        #         for p in module.parameters():
-        #             p.requires_grad = True
+        else:
+            raise Exception(f"Evaluation only, other stage not")
 
     def on_stage_end(self, stage, stage_loss, epoch):
         """Gets called at the end of a epoch."""
         # Compute/store important stats
         stage_stats = {"loss": stage_loss}
-        if stage == sb.Stage.TRAIN:
-            self.train_stats = stage_stats
+
+        stage_stats["ACC"] = self.acc_metric.summarize()
+
+        if stage == sb.Stage.TEST:
+            stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
+            stage_stats["WER"] = self.wer_metric.summarize("error_rate")
+            stage_stats["CER"] = self.cer_metric.summarize("error_rate")
         else:
-            stage_stats["ACC"] = self.acc_metric.summarize()
-            current_epoch = self.hparams.epoch_counter.current
-            valid_search_interval = self.hparams.valid_search_interval
-            if (
-                current_epoch % valid_search_interval == 0
-                or stage == sb.Stage.TEST
-            ):
-                stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
-                stage_stats["WER"] = self.wer_metric.summarize("error_rate")
-                stage_stats["CER"] = self.cer_metric.summarize("error_rate")
+            raise Exception(f"Evaluation only, other stage not")
 
         # log stats and save checkpoint at end-of-epoch
-        if stage == sb.Stage.VALID and sb.utils.distributed.if_main_process():
-
-            # report different epoch stages according current stage
-            current_epoch = self.hparams.epoch_counter.current
-            if current_epoch <= self.hparams.stage_one_epochs:
-                lr = self.hparams.noam_annealing.current_lr
-                steps = self.hparams.noam_annealing.n_steps
-            else:
-                lr = self.hparams.lr_sgd
-                steps = -1
-
-            epoch_stats = {"epoch": epoch, "lr": lr, "steps": steps}
-            self.hparams.train_logger.log_stats(
-                stats_meta=epoch_stats,
-                train_stats=self.train_stats,
-                valid_stats=stage_stats,
-            )
-            self.checkpointer.save_and_keep_only(
-                meta={"ACC": stage_stats["ACC"], "epoch": epoch},
-                max_keys=["ACC"],
-                num_to_keep=5,
-            )
-
-        elif stage == sb.Stage.TEST:
-            self.hparams.train_logger.log_stats(
-                stats_meta={"Epoch loaded": self.hparams.epoch_counter.current},
-                test_stats=stage_stats,
-            )
+        if stage == sb.Stage.TEST:
             with open(self.hparams.wer_file, "w") as w:
-                self.swer_metric.write_stats(w)
-                self.wer_metric.write_stats(w)
-                self.cer_metric.write_stats(w)
+                self.swer_metric.write_stats(w, "swer")
+                self.wer_metric.write_stats(w, "wer")
+                self.cer_metric.write_stats(w, "cer")
 
             # save the averaged checkpoint at the end of the evaluation stage
             # delete the rest of the intermediate checkpoints
@@ -233,38 +181,15 @@ class ASR(sb.core.Brain):
                 max_keys=["ACC"],
                 num_to_keep=1,
             )
+        else:
+            raise Exception(f"Evaluation only, other stage not")
 
-    def check_and_reset_optimizer(self):
-        """reset the optimizer if training enters stage 2"""
-        current_epoch = self.hparams.epoch_counter.current
-        if not hasattr(self, "switched"):
-            self.switched = False
-            if isinstance(self.optimizer, torch.optim.SGD):
-                self.switched = True
-
-        if self.switched is True:
-            return
-
-        if current_epoch > self.hparams.stage_one_epochs:
-            self.optimizer = self.hparams.SGD(self.modules.parameters())
-
-            if self.checkpointer is not None:
-                self.checkpointer.add_recoverable("optimizer", self.optimizer)
-
-            self.switched = True
 
     def on_evaluate_start(self, max_key=None, min_key=None):
         """perform checkpoint averge if needed"""
         super().on_evaluate_start()
-
-        # ckpts = self.checkpointer.find_checkpoints(
-        #     max_key=max_key, min_key=min_key
-        # )
-        # ckpt = sb.utils.checkpoints.average_checkpoints(
-        #     ckpts, recoverable_name="model", device=self.device
-        # )
-
-        # self.hparams.model.load_state_dict(ckpt, strict=True)
+        # run_on_main(self.hparams.pretrainer.collect_files)
+        # self.hparams.pretrainer.load_collected(device=self.device)
         self.hparams.model.eval()
 
 
@@ -278,10 +203,10 @@ def dataio_prepare(hparams):
         csv_path=hparams["test_csv"], replacements={"data_root": data_folder},
     )
     test_data = test_data.filtered_sorted(sort_key="duration", reverse=True)
+    logger.info(f'test_data :\n {test_data}')
 
     datasets = [test_data]
-    logger.info(f'datasets :\n {datasets}')
-
+    
     # We get the tokenizer as we need it to encode the labels when creating
     # mini-batches.
     tokenizer = hparams["tokenizer"]
@@ -325,6 +250,7 @@ if __name__ == "__main__":
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
     print(f'hparams_file : {hparams_file}')
     print(f'run_opts : {run_opts}')
+    # run_opts = {"device":"cuda:0"} # run_opts: {"device":"cuda:0"}
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
@@ -347,6 +273,7 @@ if __name__ == "__main__":
         run_on_main(hparams["pretrainer"].collect_files)
         # hparams["pretrainer"].load_collected(asr_brain.device) # cpu에서 실행됨
         hparams["pretrainer"].load_collected(device=run_opts["device"])
+        # hparams["pretrainer"].load_collected()
 
     asr_brain = ASR(
         modules=hparams['modules'],
@@ -355,11 +282,6 @@ if __name__ == "__main__":
         run_opts=run_opts,
         checkpointer=hparams["checkpointer"]
         )
-
-    asr_brain.tokenizer = tokenizer
-
-    # adding objects to trainer:
-    # asr_brain.tokenizer = hparams["tokenizer"]
 
     # Testing
     asr_brain.evaluate(

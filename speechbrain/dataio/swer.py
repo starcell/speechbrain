@@ -53,6 +53,87 @@ def print_wer_summary(wer_details, file=sys.stdout):
     )
 
 
+def print_swer_summary(wer_details, file=sys.stdout):
+    """Prints out WER summary details in human-readable format.
+
+    This function essentially mirrors the Kaldi compute-wer output format.
+
+    Arguments
+    ---------
+    wer_details : dict
+        Dict of wer summary details,
+        see ``speechbrain.utils.edit_distance.wer_summary``
+        for format.
+    file : stream
+        Where to write. (default: sys.stdout)
+    """
+    print( # %WER -> %SWER로 수정 ; 중노년층 방언 사업수행계획서에 맞추기
+        "%SWER {WER:.2f} [ {num_edits} / {num_scored_tokens}, {insertions} ins, {deletions} del, {substitutions} sub ]".format(  # noqa
+            **wer_details
+        ),
+        file=file,
+        end="",
+    )
+    print(
+        " [PARTIAL]"
+        if wer_details["num_scored_sents"] < wer_details["num_ref_sents"]
+        else "",
+        file=file,
+    )
+    print(
+        "%SER {SER:.2f} [ {num_erraneous_sents} / {num_scored_sents} ]".format(
+            **wer_details
+        ),
+        file=file,
+    )
+    print(
+        "Scored {num_scored_sents} sentences, {num_absent_sents} not present in hyp.".format(  # noqa
+            **wer_details
+        ),
+        file=file,
+    )
+
+def print_cer_summary(wer_details, file=sys.stdout):
+    """Prints out WER summary details in human-readable format.
+
+    This function essentially mirrors the Kaldi compute-wer output format.
+
+    Arguments
+    ---------
+    wer_details : dict
+        Dict of wer summary details,
+        see ``speechbrain.utils.edit_distance.wer_summary``
+        for format.
+    file : stream
+        Where to write. (default: sys.stdout)
+    """
+    print(
+        "%CER {WER:.2f} [ {num_edits} / {num_scored_tokens}, {insertions} ins, {deletions} del, {substitutions} sub ]".format(  # noqa
+            **wer_details
+        ),
+        file=file,
+        end="",
+    )
+    print(
+        " [PARTIAL]"
+        if wer_details["num_scored_sents"] < wer_details["num_ref_sents"]
+        else "",
+        file=file,
+    )
+    print(
+        "%SER {SER:.2f} [ {num_erraneous_sents} / {num_scored_sents} ]".format(
+            **wer_details
+        ),
+        file=file,
+    )
+    print(
+        "Scored {num_scored_sents} sentences, {num_absent_sents} not present in hyp.".format(  # noqa
+            **wer_details
+        ),
+        file=file,
+    )
+
+
 def print_alignments(
     details_by_utterance,
     file=sys.stdout,

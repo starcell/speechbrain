@@ -2,3 +2,25 @@
 
 /data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.json : 긴 문장
 /data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.wav
+
+people/talk/gw/collectorgw137/talk_set2_collectorgw137_speakergw2930_speakergw2931_4_0_80-7
+
+/data/MTDATA/fn-2-018/sentence/people/talk/gw/collectorgw94/talk_set2_collectorgw94_speakergw1909_speakergw1910_16_0_123-8.wav : 정답은
+
+say_set1_collectorgw169_speakergw1858_54_0_43-0,10.019,/data/MTDATA/fn-2-018/sentence/person/say/gw/collectorgw169/say_set1_collectorgw169_speakergw1858_54_0_43-0.wav,gw,큰 아들이 둘인데 있잖아 큰 애는 좀 성격이 좀 이럻게 좀 쾌할해 작은애 는 좀 소심해
+
+
+
+
+
+swer 효과 있는 데이터 확인
+================================================================================
+say_set1_collectorgw128_speakergw1739_67_0_34-1, %WER 0.00 [ 0 / 4, 0 ins, 0 del, 0 sub ]
+올 ; 봄에 ; 다 ; 했어요
+= ; =  ; = ;  = 
+올 ; 봄에 ; 다 ; 했어요
+================================================================================
+say_set1_collectorgw128_speakergw1739_67_0_34-1, %WER 50.00 [ 2 / 4, 0 ins, 1 del, 1 sub ]
+ 올  ;   봄에  ; 다 ; 했어요
+ S  ;   D   ; = ;  = 
+올봄에 ; <eps> ; 다 ; 했어요
