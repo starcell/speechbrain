@@ -1,4 +1,15 @@
-sWER 처리
+
+평가(evaluation) 데이터 준비
+시간 : 3 ~ 40 초
+전체의 10% (시간)
+    강원 : 80
+    경상 : 120
+    전라 : 100
+    제주 : 20
+    충청 : 80
+
+
+sWER 처리 : 완료 2023/02/26
 
 1. sWER 계산 : ASR train.py에서 swer 계산 추가
     - self.swer_metric = self.hparams.error_rate_computer()

@@ -1,15 +1,39 @@
 /data/MTDATA/fn-2-018/root/person/st/gs/collectorgs32/st_set3_collectorgs32_speakergs1230_15_8.json : 시간 오류
 
+너무 짧아서 발화가 없는 데이터
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl96/talk_set1_collectorjl96_speakerjl2500_speakerjl2501_5_0_110-5.wav,total,그런걸 이고 오니 가닥치마가 얼마나 펄렁거렸겄어 허리끈으로
+/data/MTDATA/fn-2-018/sentence/person/say/cc/collectorcc68/say_set1_collectorcc68_speakercc502_9_0_25-2.wav,total,서로 우애 좋게 잘 지내려면 시기하지 않고 서로 형제 간에 나눔을 잘하고 배려를 많이 한다고 해야 된다고 생각해요
+/data/MTDATA/fn-2-018/sentence/people/talk/cc/collectorcc105/talk_set1_collectorcc105_speakercc1369_speakercc1370_8_1_0_98-3.wav,total,사람이 돈이 있어야 마음이 든든하잖아
+/data/MTDATA/fn-2-018/sentence/person/say/cc/collectorcc108/say_set3_collectorcc108_speakercc534_48_0_31-1.wav,total,이제 자주 찾아 가 뵙기도 하고 같이 음식도 해 먹고 같이 또 이제 담소도 나누고 음 자주 이제 찾아뵙고 그래서 좋은 것 같고요
+/data/MTDATA/fn-2-018/sentence/person/say/cc/collectorcc76/say_set3_collectorcc76_speakercc487_12_0_70-4.wav,total,그거에 반해가지고 애가 좋게 보여지고 동갑인데 이제 결혼을 했단 말이에요
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl73/talk_set1_collectorjl73_speakerjl1477_speakerjl1478_14_1_99-8.wav,total,유지비가 난리났죠
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl96/talk_set2_collectorjl96_speakerjl1069_speakerjl1070_19_59-6.wav,total,꽃도 심고 화단도 가꿔 놓고
+/data/MTDATA/fn-2-018/sentence/person/say/jl/collectorjl139/say_set1_collectorjl139_speakerjl2442_26_2_10-0.wav,total,겁나게 갔제
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl139/talk_set1_collectorjl139_speakerjl1439_speakerjl1440_18_0_32-7.wav,total,귀까지 쑥쑥 쑤시지 어쩔 때는
+/data/MTDATA/fn-2-018/sentence/people/talk/gw/collectorgw137/talk_set1_collectorgw137_speakergw2872_speakergw2873_18_0_116-20.wav,total,넓어지고 좁아진다
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl73/talk_set2_collectorjl73_speakerjl1266_speakerjl1267_10_0_113-13.wav,total,오메 나 미쳐불것드마
+/data/MTDATA/fn-2-018/sentence/people/talk/gs/collectorgs465/talk_set1_collectorgs465_speakergs3441_speakergs3442_3_1_59-10.wav,total,옛날에는 안그랬습니다
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl73/talk_set1_collectorjl73_speakerjl1472_speakerjl1473_2_1_0_101-6.wav,total,아 근데 혼자 그렇게 해서 드세요
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl73/talk_set2_collectorjl73_speakerjl2359_speakerjl2360_0_2_0_105-8.wav,total,구의원 나오라고 난리여
+/data/MTDATA/fn-2-018/sentence/people/talk/cc/collectorcc105/talk_set1_collectorcc105_speakercc1369_speakercc1370_8_1_0_98-15.wav,total,설악산 갔다왔지
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl115/talk_set1_collectorjl115_speakerjl2125_speakerjl2126_8_0_0_112-17.wav,total,그래서 시집살이를 안시키는구나
+
+
+
+/data/MTDATA/fn-2-018/sentence/people/talk/gw/collectorgw94/talk_set2_collectorgw94_speakergw1909_speakergw1910_16_0_123-8.wav : 정답은
+/data/MTDATA/fn-2-018/sentence/person/say/gs/collectorgs303/say_set1_collectorgs303_speakergs3004_55_0_112-18.wav : 죄송합니다
+/data/MTDATA/fn-2-018/sentence/people/talk/cc/collectorcc109/talk_set1_collectorcc109_speakercc1209_speakercc1210_15_1_15-3.wav : 그니까
+/data/MTDATA/fn-2-018/sentence/people/talk/jl/collectorjl141/talk_set3_collectorjl141_speakerjl2454_speakerjl2455_23_0_36-4.wav,total,그니까
+
+/data/MTDATA/fn-2-018/sentence/people/talk/gw/collectorgw137/talk_set2_collectorgw137_speakergw2930_speakergw2931_4_0_80-7.wav
+
+
+너무 긴 문장
 /data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.json : 긴 문장
 /data/MTDATA/fn-2-018/root/people/talk/cc/collectorcc113/talk_set3_collectorcc113_speakercc1760_speakercc1761_0_12_594.wav
 
-people/talk/gw/collectorgw137/talk_set2_collectorgw137_speakergw2930_speakergw2931_4_0_80-7
-
-/data/MTDATA/fn-2-018/sentence/people/talk/gw/collectorgw94/talk_set2_collectorgw94_speakergw1909_speakergw1910_16_0_123-8.wav : 정답은
-
+오류율이 높은 데이터
 say_set1_collectorgw169_speakergw1858_54_0_43-0,10.019,/data/MTDATA/fn-2-018/sentence/person/say/gw/collectorgw169/say_set1_collectorgw169_speakergw1858_54_0_43-0.wav,gw,큰 아들이 둘인데 있잖아 큰 애는 좀 성격이 좀 이럻게 좀 쾌할해 작은애 는 좀 소심해
-
-
 
 
 
