@@ -44,6 +44,7 @@ from torch.utils.tensorboard import SummaryWriter # 중요, 맨
 # !pip install -U torch-tb-profiler
 
 import os
+from datetime import datetime
 import sys
 import torch
 import logging
@@ -483,6 +484,15 @@ if __name__ == "__main__":
     asr_brain.tokenizer = tokenizer
 
     # Training
+    logger.info(f"Training started at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Training executtion command : {sys.argv}")
+
+    ### hparams/train_with_total.yaml에서 province_code 수정
+    # nohup python -m torch.distributed.launch --nproc_per_node=4 ./train_with_total.py hparams/train_with_total.yaml --distributed_launch --distributed_backend='nccl' &
+
+
+    logger.info(f"Training start here -------------------------------------------------------")
+
     asr_brain.fit(
         asr_brain.hparams.epoch_counter,
         train_data,
@@ -490,10 +500,18 @@ if __name__ == "__main__":
         train_loader_kwargs=hparams["train_dataloader_opts"],
         valid_loader_kwargs=hparams["valid_dataloader_opts"],
     )
+    logger.info(f"Training end here ---------------------------------------------------------")
+    logger.info(f"Training ended at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+
 
     # Testing
+    logger.info(f"Evaluation started at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Evaluation executtion command : {sys.argv}")
     asr_brain.evaluate(
         test_data,
         max_key="ACC",
         test_loader_kwargs=hparams["test_dataloader_opts"],
     )
+    logger.info(f"Evaluation end here ---------------------------------------------------------")
+    logger.info(f"Evaluation ended at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
