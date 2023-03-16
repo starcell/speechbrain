@@ -11,9 +11,17 @@
 
 **/results*/
 
+**/Tokenizer/unigram_token_result/
+
 **/Inference/wer*
 
 **/classifier_data*/
+
+**/Fine-tune/tokenizers/*
+
+**/Prepare_data/data*
+
+**/Prepare_data/*.txt
 
 *.wav
 
@@ -23,7 +31,9 @@
 
 *.ckpt
 
-nohup.out
+*.out
+
+nohup*
 
 test/
 

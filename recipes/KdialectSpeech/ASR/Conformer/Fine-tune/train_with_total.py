@@ -274,9 +274,9 @@ class ASR(sb.core.Brain):
                 test_stats=stage_stats,
             )
             with open(self.hparams.wer_file, "w") as w:
-                self.swer_metric.write_stats(w)
-                self.wer_metric.write_stats(w)
-                self.cer_metric.write_stats(w)
+                self.swer_metric.write_stats(w, "swer")
+                self.wer_metric.write_stats(w, "wer")
+                self.cer_metric.write_stats(w, "cer")
 
             # save the averaged checkpoint at the end of the evaluation stage
             # delete the rest of the intermediate checkpoints
@@ -440,7 +440,7 @@ if __name__ == "__main__":
     sb.utils.distributed.ddp_init_group(run_opts)
 
     # 1.  # Dataset prep (parsing KsponSpeech)
-    from kdialectspeech_prepare import prepare_kdialectspeech  # noqa
+    # from kdialectspeech_prepare import prepare_kdialectspeech  # noqa
 
     # Create experiment directory
     sb.create_experiment_directory(
@@ -450,17 +450,17 @@ if __name__ == "__main__":
     )
 
     # multi-gpu (ddp) save data preparation
-    run_on_main(
-        prepare_kdialectspeech,
-        kwargs={
-            "data_folder": hparams["data_folder"],
-            "splited_wav_folder": hparams["splited_wav_folder"],
-            "save_folder": hparams["data_folder"],
-            "province_code": hparams["province_code"],
-            "data_ratio": hparams["data_ratio"],
-            "skip_prep": hparams["skip_prep"],
-        },
-    )
+    # run_on_main(
+    #     prepare_kdialectspeech,
+    #     kwargs={
+    #         "data_folder": hparams["data_folder"],
+    #         "splited_wav_folder": hparams["splited_wav_folder"],
+    #         "save_folder": hparams["data_folder"],
+    #         "province_code": hparams["province_code"],
+    #         "data_ratio": hparams["data_ratio"],
+    #         "skip_prep": hparams["skip_prep"],
+    #     },
+    # )
 
     # here we create the datasets objects as well as tokenization and encoding
     train_data, valid_data, test_data, tokenizer = dataio_prepare(hparams)
@@ -482,9 +482,6 @@ if __name__ == "__main__":
 
     asr_brain.tokenizer = tokenizer
 
-    # adding objects to trainer:
-    # asr_brain.tokenizer = hparams["tokenizer"]
-
     # Training
     asr_brain.fit(
         asr_brain.hparams.epoch_counter,
@@ -495,9 +492,6 @@ if __name__ == "__main__":
     )
 
     # Testing
-    # asr_brain.hparams.wer_file = os.path.join(
-    #     hparams["output_folder"], "wer_test.txt"
-    # )
     asr_brain.evaluate(
         test_data,
         max_key="ACC",

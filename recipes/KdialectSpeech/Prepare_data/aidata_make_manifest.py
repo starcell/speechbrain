@@ -221,7 +221,8 @@ def create_csv(base_dir, label_dir, sentence_dir, province_code):
     -------
     None
     """
-    json_file_list = (glob.glob(os.path.join(label_dir, '*/*/*.' + "json")))
+    print(label_dir)
+    json_file_list = (glob.glob(os.path.join(label_dir, '*/*.' + "json")))
     # print(json_file_list)
     
     total_csv_lines = []
@@ -234,6 +235,9 @@ def create_csv(base_dir, label_dir, sentence_dir, province_code):
 
 
 def main(base_dir, sentence_dir, province_code):
+    """
+    
+    """
     
     ### 원천데이터
     # /data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/1.원천데이터/01. 강원도
@@ -290,7 +294,8 @@ def main(base_dir, sentence_dir, province_code):
 if __name__ == "__main__":
     base_dir = "/data/aidata"
     sentence_dir = "/data/aidata/sentence"
-    province_code = "gs"
+    os.makedirs(sentence_dir, exist_ok=True)
+    province_code = "cc"
 
     print(f"start : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     main(base_dir, sentence_dir, province_code)

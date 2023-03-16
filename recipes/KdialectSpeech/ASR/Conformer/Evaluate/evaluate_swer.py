@@ -38,6 +38,7 @@ Authors
 """
 
 import sys
+from datetime import datetime
 import torch
 import logging
 from pathlib import Path
@@ -203,7 +204,7 @@ def dataio_prepare(hparams):
         csv_path=hparams["test_csv"], replacements={"data_root": data_folder},
     )
     test_data = test_data.filtered_sorted(sort_key="duration", reverse=True)
-    logger.info(f'test_data :\n {test_data}')
+    # logger.info(f'test_data :\n {test_data}')
 
     datasets = [test_data]
     
@@ -284,8 +285,19 @@ if __name__ == "__main__":
         )
 
     # Testing
+    logger.info(f"Evaluation started at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Evaluation executtion command : {sys.argv}")
+    # nohup ./evaluate_swer.py --device cuda:0 evaluate_gw.yaml &> nohup_gw.out &
+    # nohup ./evaluate_swer.py --device cuda:1 evaluate_gs.yaml &> nohup_gs.out &
+    # nohup ./evaluate_swer.py --device cuda:2 evaluate_cc.yaml &> nohup_cc.out &
+    # nohup ./evaluate_swer.py --device cuda:3 evaluate_jl.yaml &> nohup_jl.out &
+    # nohup ./evaluate_swer.py --device cuda:0 evaluate_jj.yaml &> nohup_jj.out &
+    
+    logger.info(f"Evaluation start here -------------------------------------------------------")
     asr_brain.evaluate(
         test_data,
         max_key="ACC",
         test_loader_kwargs=hparams["test_dataloader_opts"],
     )
+    logger.info(f"Evaluation end here ---------------------------------------------------------")
+    logger.info(f"Evaluation ended at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

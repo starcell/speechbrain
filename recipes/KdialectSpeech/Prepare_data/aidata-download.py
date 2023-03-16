@@ -59,8 +59,8 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
 
 
 bucket_name = 'aidata-2022-02-018'
-# prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
-prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'
+prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
+# prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'
 
 max_keys = 1000
 

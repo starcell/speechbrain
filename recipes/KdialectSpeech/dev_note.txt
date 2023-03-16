@@ -1,3 +1,16 @@
+
+
+2023년 3월 5일
+aidata download
+강원 경상
+ 8%|▊         | 58937/757877 [1:37:02<16:08:32, 12.03it/s]
+
+
+충청 전라 제주
+ 8%|▊         | 60254/795854 [1:30:21<25:07:14,  8.13it/s]
+
+
+
 2023년 2월 23일
 RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
     -> 이런 경우 --device cpu 옵션으로 실행하면 실행됨. 하지만 GPU에서 실행해야 하는 경우 수정 필요

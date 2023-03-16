@@ -64,6 +64,7 @@ class ASR(sb.core.Brain):
     def compute_forward(self, batch, stage):
         """Forward computations from the waveform batches
         to the output probabilities."""
+
         batch = batch.to(self.device)
         wavs, wav_lens = batch.sig
         tokens_bos, _ = batch.tokens_bos
@@ -112,20 +113,17 @@ class ASR(sb.core.Brain):
                 # for the sake of efficiency, we only perform beamsearch with
                 # limited capacity and no LM to give user some idea of
                 # how the AM is doing
-                #### 시간이 많이 걸리는 부분 : 아래 valid_search
                 hyps, _ = self.hparams.valid_search(enc_out.detach(), wav_lens)
         elif stage == sb.Stage.TEST:
-            hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) # test_search와 valid_search의 차이는 LM 사용 여부
+            hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) 
         return p_ctc, p_seq, wav_lens, hyps
 
     def compute_objectives(self, predictions, batch, stage):
         """Computes the loss (CTC+NLL) given predictions and targets."""
         
-        # print(f'compute_objectives ----- 1')
         (p_ctc, p_seq, wav_lens, hyps,) = predictions
 
         ids = batch.id
-        # print(f'compute_objectives ids : {ids}')
         tokens_eos, tokens_eos_lens = batch.tokens_eos
         tokens, tokens_lens = batch.tokens
 
@@ -157,19 +155,22 @@ class ASR(sb.core.Brain):
                 ]
                 target_words = [wrd.split(" ") for wrd in batch.wrd]
 
-                ### predicted_swords = get_swords(hyps, wrd) -> space normalized words
+                swords_temp = []
+                for idx, target in enumerate(target_words):
+                    # predicted_swords = space_normalize_lists(target, predicted_words[idx])
+                    swords_temp.append(space_normalize_lists(target, predicted_words[idx]))
+                predicted_swords = swords_temp
+
                 predicted_chars = [
                     list("".join(utt_seq)) for utt_seq in predicted_words
                 ]
                 target_chars = [list("".join(wrd.split())) for wrd in batch.wrd]
+                self.swer_metric.append(ids, predicted_swords, target_words)
                 self.wer_metric.append(ids, predicted_words, target_words)
-                # self.swer_metric.append(ids, predicted_swords, target_words)
                 self.cer_metric.append(ids, predicted_chars, target_chars)
 
             # compute the accuracy of the one-step-forward prediction
             self.acc_metric.append(p_seq, tokens_eos, tokens_eos_lens)
-            
-        # logger.info(f'compute_objectives loss ----- : {loss}') # npark
         return loss
 
     def fit_batch(self, batch):
@@ -177,7 +178,6 @@ class ASR(sb.core.Brain):
         # check if we need to switch optimizer
         # if so change the optimizer from Adam to SGD
         
-        # print(f'train length of batch : {len(batch)}')
         self.check_and_reset_optimizer()
 
         predictions = self.compute_forward(batch, sb.Stage.TRAIN)
@@ -207,7 +207,7 @@ class ASR(sb.core.Brain):
         return loss.detach()
 
     def evaluate_batch(self, batch, stage):
-        """Computations needed for validation/test batches"""
+        """Computations needed for validation/test batches"""        
         
         with torch.no_grad():
             predictions = self.compute_forward(batch, stage=stage)
@@ -221,10 +221,10 @@ class ASR(sb.core.Brain):
             self.swer_metric = self.hparams.error_rate_computer()
             self.wer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
-        else:
-            for module in [self.modules.CNN, self.modules.Transformer, self.modules.seq_lin, self.modules.ctc_lin]:
-                for p in module.parameters():
-                    p.requires_grad = True
+        # else:
+        #     for module in [self.modules.CNN, self.modules.Transformer, self.modules.seq_lin, self.modules.ctc_lin]:
+        #         for p in module.parameters():
+        #             p.requires_grad = True
 
     def on_stage_end(self, stage, stage_loss, epoch):
         """Gets called at the end of a epoch."""
@@ -274,9 +274,9 @@ class ASR(sb.core.Brain):
                 test_stats=stage_stats,
             )
             with open(self.hparams.wer_file, "w") as w:
-                self.swer_metric.write_stats(w, "swer")
-                self.wer_metric.write_stats(w, "wer")
-                self.cer_metric.write_stats(w, "cer")
+                self.swer_metric.write_stats(w)
+                self.wer_metric.write_stats(w)
+                self.cer_metric.write_stats(w)
 
             # save the averaged checkpoint at the end of the evaluation stage
             # delete the rest of the intermediate checkpoints
@@ -338,7 +338,6 @@ class ASR(sb.core.Brain):
         ckpts = self.checkpointer.find_checkpoints(
             max_key=max_key, min_key=min_key
         )
-        logger.info(f'self.device : {self.device}')
         ckpt = sb.utils.checkpoints.average_checkpoints(
             ckpts, recoverable_name="model", device=self.device
         )
@@ -431,13 +430,17 @@ def dataio_prepare(hparams):
 if __name__ == "__main__":
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
-    # print(hparams_file)
+    print(f'hparams_file : {hparams_file}')
+    print(f'run_opts : {run_opts}')
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
     # If distributed_launch=True then
     # create ddp_group with the right communication protocol
     sb.utils.distributed.ddp_init_group(run_opts)
+
+    # 1.  # Dataset prep (parsing KsponSpeech)
+    from kdialectspeech_prepare import prepare_kdialectspeech  # noqa
 
     # Create experiment directory
     sb.create_experiment_directory(
@@ -447,88 +450,44 @@ if __name__ == "__main__":
     )
 
     # multi-gpu (ddp) save data preparation
-    # run_on_main(
-    #     prepare_kdialectspeech,
-    #     kwargs={
-    #         "data_folder": hparams["data_folder"],
-    #         "splited_wav_folder": hparams["splited_wav_folder"],
-    #         "save_folder": hparams["data_folder"],
-    #         "province_code": hparams["province_code"],
-    #         "data_ratio": hparams["data_ratio"],
-    #         "skip_prep": hparams["skip_prep"],
-    #     },
-    # )
+    run_on_main(
+        prepare_kdialectspeech,
+        kwargs={
+            "data_folder": hparams["data_folder"],
+            "splited_wav_folder": hparams["splited_wav_folder"],
+            "save_folder": hparams["data_folder"],
+            "province_code": hparams["province_code"],
+            "data_ratio": hparams["data_ratio"],
+            "skip_prep": hparams["skip_prep"],
+        },
+    )
 
     # here we create the datasets objects as well as tokenization and encoding
     train_data, valid_data, test_data, tokenizer = dataio_prepare(hparams)
 
-    run_on_main(hparams["pretrainer"].collect_files)
-    logger.info(f'run_opts["device"] : {run_opts["device"]}')
-    hparams["pretrainer"].load_collected(device=run_opts["device"]) # 이 부분 값이 없음, 값이 있으면 run_on_main으로 실행 시켜야 함
+    if 'pretrainer' in hparams.keys():
+        run_on_main(hparams["pretrainer"].collect_files)
+        # hparams["pretrainer"].load_collected(asr_brain.device) # cpu에서 실행됨
+        hparams["pretrainer"].load_collected(device=run_opts["device"])
 
-    # Trainer initialization
-    # asr_brain = ASR(
-    #     modules=hparams["modules"],
-    #     opt_class=hparams["Adam"],
-    #     hparams=hparams,
-    #     run_opts=run_opts,
-    #     checkpointer=hparams["checkpointer"],
-    # )
-
-
-    ### pretrained의 fetching.py의 112행 수정 link 부분에서 multi GPU로 실행 하면 링크 지우고 링크 만드는 과정에서 에서 경합이 발생하여 에러
-    ### pretrained source dir에 custom.py가 없어서 오류 발생, 빈 파일 만들어 넣음.
-    pretrained_model = EncoderDecoderASR.from_hparams(
-        source=hparams["pretrained_folder"],
-        savedir=hparams["save_folder"],
-        # run_opts={"device":"cuda"}
-        run_opts=run_opts
-    )
-
-    ### pretrained interaces.py의 113행 
-    # sys.path.append(str(pymodule_local_path.parent))
-    ###
-
-    # os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
-    # verification = SpeakerRecognition.from_hparams(
-    #     source="speechbrain/spkrec-ecapa-voxceleb", \
-    #     savedir="pretrained_models/spkrec-ecapa-voxceleb", \
-    #     run_opts={"device":"cuda","data_parallel_count":4,"data_parallel_backend":True}
-    # )
-
-    # pretrained_model = run_on_main(EncoderDecoderASR.from_hparams, kwargs={'source':source, 'savedir':savedir})
-
-
-    modules = {"CNN": pretrained_model.mods.encoder.cnn, 
-            "Transformer": pretrained_model.mods.transformer,
-            "decoder": pretrained_model.hparams.decoder,
-            "compute_features": pretrained_model.mods.encoder.compute_features, # we use the same features 
-            "normalize": pretrained_model.mods.encoder.normalize,
-            "seq_lin": pretrained_model.hparams.seq_lin,
-            "ctc_lin": pretrained_model.hparams.ctc_lin,
-            }
-
-    model = ASR(modules, 
-        hparams=hparams, 
-        opt_class=hparams["Adam"], 
-        checkpointer=hparams["checkpointer"],
-        # run_opts={"device":"cuda"}
-        run_opts=run_opts
+    asr_brain = ASR(
+        modules=hparams['modules'],
+        opt_class=hparams["Adam"],
+        hparams=hparams,
+        run_opts=run_opts,
+        checkpointer=hparams["checkpointer"]
         )
 
-    model.tokenizer = pretrained_model.tokenizer
+    print(f'asr_brain.device 2 : {asr_brain.device}')
+
+    asr_brain.tokenizer = tokenizer
 
     # adding objects to trainer:
     # asr_brain.tokenizer = hparams["tokenizer"]
-    
-    #####
-    #####
-    # 초창기 테스트용이므로 실행 안됨, 코드 참고만 하기
-    print("초창기 테스트용이므로 실행 안됨, 코드 참고만 하기----------")
-    #####
+
     # Training
-    model.fit(
-        model.hparams.epoch_counter,
+    asr_brain.fit(
+        asr_brain.hparams.epoch_counter,
         train_data,
         valid_data,
         train_loader_kwargs=hparams["train_dataloader_opts"],
@@ -536,10 +495,10 @@ if __name__ == "__main__":
     )
 
     # Testing
-    # model.hparams.wer_file = os.path.join(
+    # asr_brain.hparams.wer_file = os.path.join(
     #     hparams["output_folder"], "wer_test.txt"
     # )
-    model.evaluate(
+    asr_brain.evaluate(
         test_data,
         max_key="ACC",
         test_loader_kwargs=hparams["test_dataloader_opts"],

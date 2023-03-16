@@ -1,25 +1,5 @@
 #!/usr/bin/env python
 
-### 이 파일은 json 파일을 파싱하여 필요한 태그 값들을 추출하여 csv 파일로 만드는 프로그램입니다.
-### 사용법은 아규먼트(인수)로 json 파일들이 있는 디렉토리와 만들 csv 파일의 이름을 주면 됩니다.
-### ex) python kdialect-json-to-csv.py json_dir_name csv_file_name.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 강원도/02. 1인발화 질문에답하기" gw_annot_1.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 강원도/03. 2인발화" gw_annot_2.csv
-
-# python kdialect-json-to-csv.py "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 경상도/02. 1인발화 질문에답하기" gs_annot_1.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 경상도/03. 2인발화" gs_annot_2.csv
-
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 충청도/02. 1인발화 질문에답하기" cc_annot_1.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 충청도/03. 2인발화" cc_annot_2.csv
-
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 전라도/02. 1인발화 질문에답하기" jl_annot_1.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 전라도/03. 2인발화" jl_annot_2.csv
-
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/02. 1인발화 질문에답하기" jj_annot_1.csv
-# python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/03. 2인발화" jj_annot_2.csv
-
-
-
 import sys
 import os
 import glob
@@ -31,8 +11,35 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename=sys.argv[0] + ".log", level = logging.INFO, datefmt = '%Y-%m-%d %H%M%S'
                    ,format = '%(asctime)s | %(levelname)s | %(message)s')
+streamHandler = logging.StreamHandler()
+logger.addHandler(streamHandler)
 
 NO_VALUE = "no_value"
+JSON_DIRS = [
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 강원도/01. 1인발화 따라말하기",
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 강원도/02. 1인발화 질문에답하기",
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 강원도/03. 2인발화",
+
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 경상도/01. 1인발화 따라말하기",
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 경상도/02. 1인발화 질문에답하기",
+            "/data/aidata/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 경상도/03. 2인발화",
+
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 충청도/01. 1인발화 따라말하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 충청도/02. 1인발화 질문에답하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/01. 충청도/03. 2인발화",
+
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 전라도/01. 1인발화 따라말하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 전라도/02. 1인발화 질문에답하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/02. 전라도/03. 2인발화",
+
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/01. 1인발화 따라말하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/02. 1인발화 질문에답하기",
+            "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/03. 2인발화"
+]
+PROV_DIC = {0:"gw", 1:"gw", 2:"gw", 3:"gs", 4:"gs", 5:"gs", 6:"cc", 7:"cc", 8:"cc", 9:"jl", 10:"jl", 11:"jl", 12:"jj", 13:"jj", 14:"jj"}
+OUTPUT_DIR = "annot_csvs"
+# OUTPUT_DIR = os.path.join(os.getcwd(), "annot_csvs")
+# os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def make_csv_lines(json_file_path):
     csv_lines = []
@@ -158,12 +165,18 @@ def make_csv_lines(json_file_path):
                     grammar_type = "no_grammarTypes"
 
 
-                line = [
-                    json_file_name, utterance_type, speaker_id, residence_province, gender, birth_year,
-                    sentence_id, intent_type, intent_category, emotion_type, grammar_type
-                    ]
-                
-                lines.append(line)
+                try:
+                    line = [
+                        json_file_name, utterance_type, speaker_id, residence_province, gender, birth_year,
+                        sentence_id, intent_type, intent_category, emotion_type, grammar_type
+                        ]
+                except:
+                    line = []
+                    logger.info(f"line error json_file_path : {json_file_path}")
+                    # print(f"json_file_path : {json_file_path}")
+
+                if line:
+                    lines.append(line)
 
         if lines:
             csv_lines.extend(lines)
@@ -191,29 +204,35 @@ def get_json_files(json_dir):
     return files
 
 
-def main(json_dir, csv_file):
+def make_csv_file(json_dir, csv_file):
     """
-    kdialect-json-to-csv.py json_dir csv_file
     """
-    print(json_dir)
-    print(csv_file)
+    logger.info(f'extract at {json_dir} start -----')
+    # logger.info(f'os.getcwd() : {os.getcwd()}')
+    logger.info(f'csv_file : {csv_file}')
+       
 
-    logger.info(f'extract start -----')
     json_files = get_json_files(json_dir)
-    for json_file in json_files:
+    if os.path.exists(csv_file):
+        os.rename(csv_file, csv_file + ".bak")
+
+    for i, json_file in enumerate(json_files):
         if make_csv_lines(json_file):
             csv_df = pd.DataFrame(make_csv_lines(json_file), columns=[
                 "json_file_name", "utterance_type", "speaker_id", "residence_province", "gender", "birth_year",
                 "sentence_id", "intent_type", "intent_category", "emotion_type", "grammar_type"
             ])
-            if not os.path.exists(csv_file):
+            if i == 0:
                 csv_df.to_csv(csv_file, index=False, mode="w", encoding="UTF-8")
             else:
                 csv_df.to_csv(csv_file, index=False, mode="a", encoding="UTF-8", header=False)
-    logger.info(f'extract end -----')
+    logger.info(f'extract at {json_dir} end -----')
 
 if __name__ == "__main__":
 
-    json_dir = sys.argv[1]
-    csv_file = sys.argv[2]
-    main(json_dir, csv_file)
+    for i, dir in enumerate(JSON_DIRS):
+        prov_code = PROV_DIC[i]
+        csv_file = str(i + 1) + "_" + prov_code + ".csv"
+        csv_path = os.path.join(OUTPUT_DIR, csv_file) ### 지정된 디렉토리에 파일이 생기지 않음
+        # logger.info(f"csv_path : {csv_path} ----------")
+        make_csv_file(dir, csv_path)

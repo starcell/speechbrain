@@ -3,30 +3,23 @@
 The system employs an encoder, a decoder, and an attention mechanism
 between them. Decoding is performed with (CTC/Att joint) beamsearch
 coupled with a neural language model.
-
 To run this recipe, do the following:
 > python train.py hparams/conformer_medium.yaml
-
 With the default hyperparameters, the system employs
 a convolutional frontend and a transformer.
 The decoder is based on a Transformer decoder.
 Beamsearch coupled with a Transformer language model is used
 on the top of decoder probabilities.
-
 The neural network is trained on both CTC and negative-log likelihood
 targets and sub-word units estimated with Byte Pairwise Encoding (BPE)
 are used as basic recognition tokens. Training is performed on the full
 KdialectSpeech dataset.
-
 The best model is the average of the checkpoints from last 5 epochs.
-
 The experiment file is flexible enough to support a large variety of
 different systems. By properly changing the parameter files, you can try
 different encoders, decoders, tokens (e.g, characters instead of BPE),
 training split (e.g, train-clean 100 rather than the full one), and many
 other possible variations.
-
-
 Authors
  * Jianyuan Zhong 2020
  * Mirco Ravanelli 2020
@@ -54,9 +47,6 @@ from speechbrain.utils.distributed import run_on_main
 from speechbrain.pretrained import EncoderDecoderASR
 from speechbrain.utils.parameter_transfer import Pretrainer
 
-sys.path.append('../../../kdialectspeech')
-from swer import space_normalize_lists
-
 logger = logging.getLogger(__name__)
 
 # Define training procedure
@@ -64,8 +54,16 @@ class ASR(sb.core.Brain):
     def compute_forward(self, batch, stage):
         """Forward computations from the waveform batches
         to the output probabilities."""
+        # print(f'compute_forward ----- 1')
+        # print(f'type of batch : {batch}')
+        # print(f'tself.device) : {self.device}')
         batch = batch.to(self.device)
+        # print(f'compute_forward ----- 2')
         wavs, wav_lens = batch.sig
+        # print(f'wavs, wav_lens : {wavs}, {wav_lens}')
+        # print(f'compute_forward ----- 3')
+        # print(f'wavs : {wavs}')
+        # print(f'wav_lens : {wav_lens}')
         tokens_bos, _ = batch.tokens_bos
 
         # Add augmentation if specified
@@ -88,6 +86,8 @@ class ASR(sb.core.Brain):
 
         # forward modules
         src = self.modules.CNN(feats)
+        # print(f'tokens_bos : {tokens_bos}')
+        # print(f'pad_idx : {self.hparams.pad_index}')
         enc_out, pred = self.modules.Transformer( # pred : decoder out
             src, tokens_bos, wav_lens, pad_idx=self.hparams.pad_index
         )
@@ -112,10 +112,24 @@ class ASR(sb.core.Brain):
                 # for the sake of efficiency, we only perform beamsearch with
                 # limited capacity and no LM to give user some idea of
                 # how the AM is doing
+                ####
                 #### 시간이 많이 걸리는 부분 : 아래 valid_search
+                ####
+                # print(f' valid enc_out size : {enc_out.size()}')
+                # print(f' valid wav_lens : {wav_lens}')
                 hyps, _ = self.hparams.valid_search(enc_out.detach(), wav_lens)
+                # print(f' valid hyps : {hyps}')
         elif stage == sb.Stage.TEST:
+            # print(f'compute_forward ----- 4')
+            # print(f' test enc_out size : {enc_out.size()}')
             hyps, _ = self.hparams.test_search(enc_out.detach(), wav_lens) # test_search와 valid_search의 차이는 LM 사용 여부
+            # print(f' test hyps : {hyps}')
+            # print(f'compute_forward ----- 5')
+        # print(f'compute_forward ------------------------------------')
+        # print(f'compute_forward p_ctc ----- : {p_ctc}')
+        # print(f'compute_forward p_seq ----- : {p_seq}')
+        # print(f'compute_forward wav_lens ----- : {wav_lens}')
+        # print(f'compute_forward hyps ----- : {hyps}')
         return p_ctc, p_seq, wav_lens, hyps
 
     def compute_objectives(self, predictions, batch, stage):
@@ -128,6 +142,8 @@ class ASR(sb.core.Brain):
         # print(f'compute_objectives ids : {ids}')
         tokens_eos, tokens_eos_lens = batch.tokens_eos
         tokens, tokens_lens = batch.tokens
+        
+        # logger.info(f'compute_objectives tokens.size ----- : {tokens.size()}') # npark
 
         if hasattr(self.modules, "env_corrupt") and stage == sb.Stage.TRAIN:
             tokens_eos = torch.cat([tokens_eos, tokens_eos], dim=0)
@@ -137,6 +153,9 @@ class ASR(sb.core.Brain):
             tokens = torch.cat([tokens, tokens], dim=0)
             tokens_lens = torch.cat([tokens_lens, tokens_lens], dim=0)
 
+
+        # print(f' compute_objectives tokens_eos : {tokens_eos}')
+        # print(f' compute_objectives p_seq : {p_seq}')
         loss_seq = self.hparams.seq_cost(
             p_seq, tokens_eos, length=tokens_eos_lens
         )
@@ -146,6 +165,7 @@ class ASR(sb.core.Brain):
             + (1 - self.hparams.ctc_weight) * loss_seq
         )
         if stage != sb.Stage.TRAIN:
+            # print(f'compute_objectives stage is not train -------------')
             current_epoch = self.hparams.epoch_counter.current
             valid_search_interval = self.hparams.valid_search_interval
             if current_epoch % valid_search_interval == 0 or (
@@ -158,6 +178,7 @@ class ASR(sb.core.Brain):
                 target_words = [wrd.split(" ") for wrd in batch.wrd]
 
                 ### predicted_swords = get_swords(hyps, wrd) -> space normalized words
+
                 predicted_chars = [
                     list("".join(utt_seq)) for utt_seq in predicted_words
                 ]
@@ -208,18 +229,34 @@ class ASR(sb.core.Brain):
 
     def evaluate_batch(self, batch, stage):
         """Computations needed for validation/test batches"""
+        # print(f'stage : {stage}')
+        # print(f'length of batch : {len(batch)}')
+        # print(f'batch.id type -------- : {type(batch.id)}')
+        # print(f'batch.id -------- : {batch.id}')
+        # print(f'batch sig type : {type(batch.sig)}')
+        # print(f'batch sig : {batch.sig[0]}')
+        # print(f'batch sig size : {batch.sig[0].size()}')
+        
+        
+        # for k, v in batch.sig:
+        #     print(k)
+        #     print(v)
+        
         
         with torch.no_grad():
+            # print('########## compute_forward #########')
             predictions = self.compute_forward(batch, stage=stage)
+            # print(f'########## compute_objectives ######### stage : {stage}')
             loss = self.compute_objectives(predictions, batch, stage=stage)
+            # print('########## eval end #########')
         return loss.detach()
 
     def on_stage_start(self, stage, epoch):
         """Gets called at the beginning of each epoch"""
         if stage != sb.Stage.TRAIN:
             self.acc_metric = self.hparams.acc_computer()
-            self.swer_metric = self.hparams.error_rate_computer()
             self.wer_metric = self.hparams.error_rate_computer()
+            # self.swer_metric = self.hparams.error_rate_computer()
             self.cer_metric = self.hparams.error_rate_computer()
         else:
             for module in [self.modules.CNN, self.modules.Transformer, self.modules.seq_lin, self.modules.ctc_lin]:
@@ -240,8 +277,8 @@ class ASR(sb.core.Brain):
                 current_epoch % valid_search_interval == 0
                 or stage == sb.Stage.TEST
             ):
-                stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
                 stage_stats["WER"] = self.wer_metric.summarize("error_rate")
+                # stage_stats["sWER"] = self.swer_metric.summarize("error_rate")
                 stage_stats["CER"] = self.cer_metric.summarize("error_rate")
 
         # log stats and save checkpoint at end-of-epoch
@@ -274,9 +311,9 @@ class ASR(sb.core.Brain):
                 test_stats=stage_stats,
             )
             with open(self.hparams.wer_file, "w") as w:
-                self.swer_metric.write_stats(w, "swer")
-                self.wer_metric.write_stats(w, "wer")
-                self.cer_metric.write_stats(w, "cer")
+                # self.swer_metric.write_stats(w)
+                self.wer_metric.write_stats(w)
+                self.cer_metric.write_stats(w)
 
             # save the averaged checkpoint at the end of the evaluation stage
             # delete the rest of the intermediate checkpoints
@@ -338,7 +375,6 @@ class ASR(sb.core.Brain):
         ckpts = self.checkpointer.find_checkpoints(
             max_key=max_key, min_key=min_key
         )
-        logger.info(f'self.device : {self.device}')
         ckpt = sb.utils.checkpoints.average_checkpoints(
             ckpts, recoverable_name="model", device=self.device
         )
@@ -431,13 +467,16 @@ def dataio_prepare(hparams):
 if __name__ == "__main__":
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
-    # print(hparams_file)
+    print(hparams_file)
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
 
     # If distributed_launch=True then
     # create ddp_group with the right communication protocol
     sb.utils.distributed.ddp_init_group(run_opts)
+
+    # 1.  # Dataset prep (parsing KsponSpeech)
+    from kdialectspeech_prepare import prepare_kdialectspeech  # noqa
 
     # Create experiment directory
     sb.create_experiment_directory(
@@ -447,23 +486,22 @@ if __name__ == "__main__":
     )
 
     # multi-gpu (ddp) save data preparation
-    # run_on_main(
-    #     prepare_kdialectspeech,
-    #     kwargs={
-    #         "data_folder": hparams["data_folder"],
-    #         "splited_wav_folder": hparams["splited_wav_folder"],
-    #         "save_folder": hparams["data_folder"],
-    #         "province_code": hparams["province_code"],
-    #         "data_ratio": hparams["data_ratio"],
-    #         "skip_prep": hparams["skip_prep"],
-    #     },
-    # )
+    run_on_main(
+        prepare_kdialectspeech,
+        kwargs={
+            "data_folder": hparams["data_folder"],
+            "splited_wav_folder": hparams["splited_wav_folder"],
+            "save_folder": hparams["data_folder"],
+            "province_code": hparams["province_code"],
+            "data_ratio": hparams["data_ratio"],
+            "skip_prep": hparams["skip_prep"],
+        },
+    )
 
     # here we create the datasets objects as well as tokenization and encoding
     train_data, valid_data, test_data, tokenizer = dataio_prepare(hparams)
 
     run_on_main(hparams["pretrainer"].collect_files)
-    logger.info(f'run_opts["device"] : {run_opts["device"]}')
     hparams["pretrainer"].load_collected(device=run_opts["device"]) # 이 부분 값이 없음, 값이 있으면 run_on_main으로 실행 시켜야 함
 
     # Trainer initialization
@@ -476,13 +514,21 @@ if __name__ == "__main__":
     # )
 
 
+    provice_code = 'kspon'
+
+    pretrained_model_src_dir = '../Inference/pretrained-model-src'
+    pretrained_model_save_dir = '../Inference/pretrained-model-save'
+
+    source = os.path.join(pretrained_model_src_dir, provice_code)
+    savedir = os.path.join(pretrained_model_save_dir, provice_code)
+
+
     ### pretrained의 fetching.py의 112행 수정 link 부분에서 multi GPU로 실행 하면 링크 지우고 링크 만드는 과정에서 에서 경합이 발생하여 에러
     ### pretrained source dir에 custom.py가 없어서 오류 발생, 빈 파일 만들어 넣음.
     pretrained_model = EncoderDecoderASR.from_hparams(
-        source=hparams["pretrained_folder"],
-        savedir=hparams["save_folder"],
-        # run_opts={"device":"cuda"}
-        run_opts=run_opts
+        source=source,
+        savedir=savedir,
+        run_opts={"device":"cuda"}
     )
 
     ### pretrained interaces.py의 113행 
@@ -512,20 +558,14 @@ if __name__ == "__main__":
         hparams=hparams, 
         opt_class=hparams["Adam"], 
         checkpointer=hparams["checkpointer"],
-        # run_opts={"device":"cuda"}
-        run_opts=run_opts
+        run_opts={"device":"cuda"}
         )
 
     model.tokenizer = pretrained_model.tokenizer
 
     # adding objects to trainer:
     # asr_brain.tokenizer = hparams["tokenizer"]
-    
-    #####
-    #####
-    # 초창기 테스트용이므로 실행 안됨, 코드 참고만 하기
-    print("초창기 테스트용이므로 실행 안됨, 코드 참고만 하기----------")
-    #####
+
     # Training
     model.fit(
         model.hparams.epoch_counter,
@@ -536,9 +576,9 @@ if __name__ == "__main__":
     )
 
     # Testing
-    # model.hparams.wer_file = os.path.join(
-    #     hparams["output_folder"], "wer_test.txt"
-    # )
+    model.hparams.wer_file = os.path.join(
+        hparams["output_folder"], "wer_test.txt"
+    )
     model.evaluate(
         test_data,
         max_key="ACC",
