@@ -203,7 +203,7 @@ def dataio_prepare(hparams):
     test_data = sb.dataio.dataset.DynamicItemDataset.from_csv(
         csv_path=hparams["test_csv"], replacements={"data_root": data_folder},
     )
-    test_data = test_data.filtered_sorted(sort_key="duration", reverse=True)
+    # test_data = test_data.filtered_sorted(sort_key="duration", reverse=True)
     # logger.info(f'test_data :\n {test_data}')
 
     datasets = [test_data]
@@ -249,8 +249,8 @@ def dataio_prepare(hparams):
 if __name__ == "__main__":
     # CLI:
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
-    print(f'hparams_file : {hparams_file}')
-    print(f'run_opts : {run_opts}')
+    # print(f'hparams_file : {hparams_file}')
+    # print(f'run_opts : {run_opts}')
     # run_opts = {"device":"cuda:0"} # run_opts: {"device":"cuda:0"}
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     sb.utils.distributed.ddp_init_group(run_opts)
 
     # Create experiment directory
-    print(f'output_folder : {hparams["output_folder"]}')
+    # print(f'output_folder : {hparams["output_folder"]}')
     sb.create_experiment_directory(
         experiment_directory=hparams["output_folder"],
         hyperparams_to_save=hparams_file,
@@ -283,10 +283,14 @@ if __name__ == "__main__":
         run_opts=run_opts,
         checkpointer=hparams["checkpointer"]
         )
+    asr_brain.tokenizer = tokenizer
+    logger.info(f'asr_brain.device 2 : {asr_brain.device}')
 
+    
     # Testing
     logger.info(f"Evaluation started at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"Evaluation executtion command : {sys.argv}")
+    ## evaluation은 multi GPU로 해도 속도는 드대로임
     # nohup ./evaluate_swer.py --device cuda:0 evaluate_gw.yaml &> nohup_gw.out &
     # nohup ./evaluate_swer.py --device cuda:1 evaluate_gs.yaml &> nohup_gs.out &
     # nohup ./evaluate_swer.py --device cuda:2 evaluate_cc.yaml &> nohup_cc.out &

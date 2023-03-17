@@ -479,8 +479,8 @@ if __name__ == "__main__":
         checkpointer=hparams["checkpointer"]
         )
 
-    print(f'asr_brain.device 2 : {asr_brain.device}')
-
+    logger.info(f'asr_brain.device 2 : {asr_brain.device}')
+    
     asr_brain.tokenizer = tokenizer
 
     # Training
