@@ -1,3 +1,30 @@
+2023/03/23
+사용법
+1. 데이터 준비 : 오디오 파일을 문장별로 자르고 매니페스트 파일 만들기
+    1. aidata_make_manifest.py # 뒷부분의 province_code를 원하는 지역으로 설정
+    2. sentence_dir로 지정된 디렉토리에 문장별로 나누어진 음성 파일과 매니페스트 파일(csv형식) 저장
+
+2. 토큰화 : 
+    1. token_train.py
+    2. 한 번 실행으로 모든 지역에 대하여 각각 토큰화 학습
+    3. 결과는 ./results/<province_code> 생성
+
+3. 학습(Fine Tuning)
+
+
+
+실행 순서
+1. aidata_make_manifest.py 
+    -> province_code.csv 파일 생성 # 예) gw.csv
+
+2. aidata_split_manifest.py
+    province + "_train.csv # 예) gw_train.csv
+    province + "_valid.csv # 예) gw_valid.csv
+    province + "_test.csv # 예) gw_test.csv
+
+
+
+
 
 평가(evaluation) 데이터 준비
 시간 : 3 ~ 40 초

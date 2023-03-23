@@ -290,7 +290,7 @@ if __name__ == "__main__":
     # Testing
     logger.info(f"Evaluation started at : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"Evaluation executtion command : {sys.argv}")
-    ## evaluation은 multi GPU로 해도 속도는 드대로임
+    ## evaluation은 multi GPU로 해도 속도는 그대로임
     # nohup ./evaluate_swer.py --device cuda:0 evaluate_gw.yaml &> nohup_gw.out &
     # nohup ./evaluate_swer.py --device cuda:1 evaluate_gs.yaml &> nohup_gs.out &
     # nohup ./evaluate_swer.py --device cuda:2 evaluate_cc.yaml &> nohup_cc.out &

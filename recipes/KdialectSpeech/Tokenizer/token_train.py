@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-매니패스트 파일을 입력으로 토큰화 트리이닝만 실행
+"""매니패스트 파일을 입력으로 토큰화
 """
 import os
 import speechbrain as sb

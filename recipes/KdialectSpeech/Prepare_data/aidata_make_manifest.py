@@ -15,8 +15,6 @@ import os
 import glob
 from pathlib import Path
 import re
-from speechbrain.dataio.dataio import load_pkl, merge_csvs, save_pkl
-# from speechbrain.utils.data_utils import get_all_files
 
 ## Kang
 import pandas as pd
@@ -295,10 +293,12 @@ if __name__ == "__main__":
     base_dir = "/data/aidata"
     sentence_dir = "/data/aidata/sentence"
     os.makedirs(sentence_dir, exist_ok=True)
-    province_code = "cc"
+    # province_code = "cc"
+    province_code_list = ["gw", "gs", "cc", "jl", "jj"]
 
     print(f"start : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    main(base_dir, sentence_dir, province_code)
+    for province in province_code_list:
+        main(base_dir, sentence_dir, province)
     print(f"end : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     
