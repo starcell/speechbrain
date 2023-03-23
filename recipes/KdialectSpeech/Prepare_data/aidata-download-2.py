@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """NIA의 클라우드에서 데이터 다운로드
 사용법 :
-nohup python aidata-download.py &> nohup_download.out & 
+nohup python aidata-download-2.py &> nohup_download_2.out & 
 """
 # https://guide.ncloud-docs.com/docs/storage-storage-8-2
 
@@ -14,7 +14,7 @@ import logging
 
 LOG_DIR = './'
 # logfile = os.path.join(LOG_DIR, 'aidata-download-{:%Y%m%d}.log')
-logfile = os.path.join(LOG_DIR, 'aidata-download.log')
+logfile = os.path.join(LOG_DIR, 'aidata-download-2.log')
 logging.basicConfig(filename=logfile, level=logging.INFO)
 
 logger = logging.getLogger(__name__)
@@ -62,8 +62,8 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
 
 
 bucket_name = 'aidata-2022-02-018'
-prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
-# prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'
+# prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
+prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'
 
 max_keys = 1000
 
