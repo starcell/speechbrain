@@ -9,6 +9,8 @@ N Park Starcell Inc.
 원천 데이터의 json 파일을 읽어서 오디오 파일을 문장 단위로 분할하고 매니페스트 파일 작성
 main()함수 실행 전에 입력 데이터 디렉토리 설정
 
+실행 : nohup python aidata_make_manifest.py &
+
 """
 import logging
 import os

@@ -1,22 +1,20 @@
-"""전체 데이터에 대한 EDA
-전체 json file에서 시간 duration과 방언전사문 읽기
-지역별 전체 duration 합계 계산
-실행 : nohup python aidata-eda.py &
+"""오디오 파일과 데이터 파일 그리고 전사문으로 csv 파일 만들기
+도별로 만듦
+실행 : python aidata_split_file_list.py
+맨 아래 main()에서 base_dir과 province code 설정하여 실행
 """
-
 import os
-import sys
-from pathlib import Path
 import glob
+import sys
+import pandas as pd
+import numpy as np
 import json
 import logging
-
 from datetime import datetime
-import pandas as pd
+from pathlib import Path
 
-sys.path.append('../kdialectspeech')
-from time_convert import time_convert
-
+# sys.path.append('../kdialectspeech')
+# from time_convert import time_convert
 
 logger = logging.getLogger(__name__)
 log_file = sys.argv[0] + "_" + datetime.now().strftime('%Y-%m-%d_%H:%M:%S') + ".log"
@@ -24,6 +22,7 @@ logging.basicConfig(filename=log_file, level = logging.INFO, datefmt = '%Y-%m-%d
                    ,format = '%(asctime)s | %(levelname)s | %(message)s')
 streamHandler = logging.StreamHandler()
 logger.addHandler(streamHandler)
+
 
 def dir_of(base_dir, province):
     province_code = province
@@ -62,17 +61,12 @@ def file_list_of(base_dir, province):
 
 def manifest_of(json_file):
     data_id = Path(json_file).stem # 확장자 제거
+    data_file = str(json_file).replace("2.라벨링데이터", "1.원천데이터",).replace(".json", ".wav")
+    # print(f'data_file : {data_file}')
     
-    with open(json_file, encoding="UTF-8" ) as json_file :
-        json_data = json.load(json_file)
+    with open(json_file, encoding="UTF-8" ) as j_f :
+        json_data = json.load(j_f)
 
-    try:
-        speechStartTime = json_data["audio"]["speechStartTime"]
-        speechStartTime = format(time_convert(speechStartTime), '5.3f') 
-    except:
-        logger.info(f"no speechStartTime, file_name : {json_file}")
-        speechStartTime = 0.0
-    
     try:
         recordDuration = json_data["audio"]["recordDuration"]
     except:
@@ -85,7 +79,7 @@ def manifest_of(json_file):
         logger.info(f"no_dialect, file_name : {json_file}")
         dialect = "no_dialect"
     
-    manifest_line = [data_id, speechStartTime, recordDuration, dialect]
+    manifest_line = [data_id, data_file, json_file, recordDuration, dialect]
     return manifest_line
 
 
@@ -98,30 +92,45 @@ def manifest_of_list(json_file_list):
     return manifest_lines
 
 
+def manifest_of_list(json_file_list):
+    manifest_lines = []
+    for json_file in json_file_list:
+        manifest_line = manifest_of(json_file)
+        manifest_lines.append(manifest_line)
 
-def main(base_dir, province_code_list):
-    for province in province_code_list:
-        _, json_file_list = file_list_of(base_dir, province)
-        manifest_list = manifest_of_list(json_file_list)
-        manifest_df  = pd.DataFrame(data=manifest_list, columns=["id", "speechStartTime", "recordDuration", "dialect"])
+    return manifest_lines
 
-        # total_speechStartTime = manifest_df["speechStartTime"].sum()/3600 # sec of an hour
-        # logger.info(f"total speech StartTime of {province} : {total_speechStartTime}")
 
-        # total_recordDuration = manifest_df["recordDuration"].sum()/3600 # sec of an hour
-        # logger.info(f"total record duration of {province} : {total_recordDuration}")
 
-        manifest_file = Path(province + "_json.csv")
-        manifest_df.to_csv(manifest_file, index=False)
+def main(base_dir, province_code):
+    _, json_file_list = file_list_of(base_dir, province_code)
+    manifest_list = manifest_of_list(json_file_list)
+    manifest_df  = pd.DataFrame(data=manifest_list, columns=["id", "wav", "json", "recordDuration", "dialect"])
+
+    manifest_file = Path(province_code + "_json.csv")
+    manifest_df.to_csv(manifest_file, index=False)
+
+    # split total csv into train, valid, test - 8:1:1
+    manifest_train_df, manifest_valid_df, manifest_test_df = np.split(
+        manifest_df.sample(frac=1, random_state=7774), 
+        [int(.8*len(manifest_df)), int(.9*len(manifest_df))]
+    )
+
+    manifest_train_file = Path(province_code + "_train_json.csv")
+    manifest_train_df.to_csv(manifest_train_file, index=False)
+
+    manifest_valid_file = Path(province_code + "_valid_json.csv")
+    manifest_valid_df.to_csv(manifest_valid_file, index=False)
+
+    manifest_test_file = Path(province_code + "_test_json.csv")
+    manifest_test_df.to_csv(manifest_test_file, index=False)
+
+
 
 if __name__ == "__main__":
     base_dir = Path("/data/aidata")
-    province_code_list = ["jj", "jl", "gw", "gs", "cc"]
+    # province_code_list = ["jj", "jl", "gw", "gs", "cc"]
+    province_code = sys.argv[1]
 
-    main(base_dir, province_code_list)
+    main(base_dir, province_code)
 
-
-# for province_code in province_code_list:
-#     data_file_list, json_file_list = file_list_of(province_code)
-#     print(f'# of {province_code} data file list :{len(data_file_list)}')
-#     print(f'# of {province_code} json file list :{len(json_file_list)}')
