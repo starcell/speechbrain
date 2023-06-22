@@ -126,6 +126,13 @@ def make_csv_lines(json_file_path):
             return []
 
         lines = []
+        
+        # 문제가 있는 파일 목록을 기록하는 기능 필요
+        intent_type = NO_VALUE
+        intent_category = NO_VALUE
+        emotion_type = NO_VALUE
+        grammar_type = NO_VALUE
+
         if sentence_ids_of_speaker:
             for sentence_id in sentence_ids_of_speaker:
                 if intents:
