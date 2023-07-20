@@ -18,7 +18,7 @@
 # python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/02. 1인발화 질문에답하기" jj_annot_1.csv
 # python kdialect-json-to-csv.py "/data/aidata/139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/2.라벨링데이터/03. 제주도/03. 2인발화" jj_annot_2.csv
 
-
+# python kdialect-json-to-csv.py json test.csv
 
 import sys
 import os
@@ -117,10 +117,18 @@ def make_csv_lines(json_file_path):
         except:
             logger.info(f"no sentenceId, file_name : {json_file_path}")
             return []
-
+        
+        logger.info(f"intents : {intents}")
         lines = []
+
+        intent_type = NO_VALUE
+        intent_category = NO_VALUE
+        emotion_type = NO_VALUE
+        grammar_type = NO_VALUE
+
         if sentence_ids_of_speaker:
             for sentence_id in sentence_ids_of_speaker:
+                
                 if intents:
                     for intent in intents:
                         if intent["sentenceId"] == sentence_id:
@@ -157,7 +165,8 @@ def make_csv_lines(json_file_path):
                 else:
                     grammar_type = "no_grammarTypes"
 
-
+                logger.info(f"sentence_id : {sentence_id}")
+                # logger.info(f"intent_type : {intent_type}")
                 line = [
                     json_file_name, utterance_type, speaker_id, residence_province, gender, birth_year,
                     sentence_id, intent_type, intent_category, emotion_type, grammar_type

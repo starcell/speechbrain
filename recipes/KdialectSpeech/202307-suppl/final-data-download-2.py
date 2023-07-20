@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """NIA의 클라우드에서 데이터 다운로드
 사용법 :
-nohup python aidata-download.py &> nohup_download.out & 
+nohup python final-data-download-2.py &> nohup-download-2.out & 
 """
 # https://guide.ncloud-docs.com/docs/storage-storage-8-2
 
@@ -62,7 +62,16 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
 
 
 bucket_name = 'aidata-2022-02-018'
-prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/07.보완조치/01.보완완료/02.라벨링데이터/'
+# prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/08.최종산출물/01-1.최종데이터(업로드)/3.Test/01.원천데이터/'
+
+# 1
+# prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/08.최종산출물/01-1.최종데이터(업로드)/3.Test/02.라벨링데이터/'
+
+# prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/08.최종산출물/01-1.최종데이터(업로드)/3.Test/01.원천데이터/'
+
+# 2
+prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/08.최종산출물/01-1.최종데이터(업로드)/3.Test/02.라벨링데이터/'
+
 # prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/07.보완조치/01.보완완료/02.라벨링데이터/03.제주도/'
 # prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
 # prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """NIA의 클라우드에서 데이터 다운로드
 사용법 :
-nohup python aidata-download.py &> nohup_download.out & 
+nohup python aidata-download-gw-gs.py &> nohup_download_gw-gs.out & 
 """
 # https://guide.ncloud-docs.com/docs/storage-storage-8-2
 
@@ -62,7 +62,7 @@ def get_s3_object_list(s3, bucket_name, prefix, max_keys):
 
 
 bucket_name = 'aidata-2022-02-018'
-prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/07.보완조치/01.보완완료/02.라벨링데이터/'
+prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/07.보완조치/01.보완완료/02.라벨링데이터/'
 # prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/07.보완조치/01.보완완료/02.라벨링데이터/03.제주도/'
 # prefix = '139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/06.품질검증/1.Dataset/'
 # prefix = '139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)/06.품질검증/1.Dataset/'
