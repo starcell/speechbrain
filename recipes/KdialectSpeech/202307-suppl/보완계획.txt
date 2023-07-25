@@ -20,6 +20,32 @@
     2) 데이터 전처리 : 평가용 manefest file(음성파일경로와 방언전사문 포함) 생성, 문장별음성데이터(wave file을 문장별로 분리) 준비
     3) 테스트 : 음성인식한 전사문과 라벨에 있는 전사문을 비교하여 성능(swer) 구하기
 
+7. 제출 자료 : 디렉토리 구조
+    1) 도커이미지 : 도커이미지(*.tar 파일), 사용법 문서 파일
+    2) 시험환경 : 검증환경준비확인서, 시험환경로그
+    3) 평가데이터셋 : test dataset
+    4) 평가수행로그 : 로그 파일
+
+8. 평가용 도커이미지
+    트레이닝부분을 제외하고 평가용으로 새로 만들기
+    지난 번 이미지를 실행하여 재사용
+
+
+<data 오류>
+say_set3_collectorgs238_speakergs2883_53_0_36.json 파일 sentenceId 값이 1.0이 두 번 나옴, 2번째 값을 2.0으로 변경 했음(2023/07/24)
+
+여러개 있음
+say_set3_collectorgs240_speakergs2792_62_0_27.json 
+say_set1_collectorcc116_speakercc1484_10_0_24.json
+say_set1_collectorjl128_speakerjl882_15_0_64.json
+say_set2_collectorgw87_speakergw2394_16_0_27.json -> 이 파일은 문제가 심각함 : sentenceId, time, 전사문 모두 잘 못 됨
+
+st_set3_collectorgs32_speakergs1230_15_8 -> 오디오 파일 잘 못, 오디오 파일은 있으나 소리가 나지 않음
+
+
+
+
+
 
 
 -> 평가 결과 파일 예
