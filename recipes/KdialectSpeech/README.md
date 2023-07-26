@@ -18,3 +18,35 @@ sb.utils.metric_stats.py
 
 inference 수정
     bug fix : inference 안되는 문제 해결
+
+
+## 유효성 검증 자료 만들기   
+
+도커 이미지 만들기 
+    불필요한 파일들을 지우고 이미지 커밋
+    docker commit <container name> <image name:tag>
+
+ex)
+```bash
+docker commit kdialect-test kdialect-test:20230726
+```
+
+
+도커 실행
+    docker run -itd \
+    --name kdialect-test-0726 \
+    --gpus all \
+    --ipc=host \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v <your-data-dir>:/data 
+
+ex)
+```bash
+docker run -itd \
+--name kdialect-test-0726 \
+--gpus all \
+--ipc=host \
+-v /etc/localtime:/etc/localtime:ro \
+-v /home/starcell/data:/data  \
+kdialect-test:20230726 /usr/bin/bash &
+```

@@ -1,0 +1,217 @@
+# ############################################################################
+# Model: E2E ASR with Transformer
+# Encoder: Conformer Encoder
+# Decoder: Transformer Decoder + (CTC/ATT joint) beamsearch + TransformerLM
+# Tokens: unigram
+# losses: CTC + KLdiv (Label Smoothing loss)
+# Training: KsponSpeech 965.2h
+# Authors: Jianyuan Zhong, Titouan Parcollet, Samuele Cornell, Dongwon Kim, Dongwoo Kim
+# ############################################################################
+# Seed needs to be set at top of yaml, before objects with parameters are made
+
+province_code: jj #['gw', 'gs', 'jl', 'jj', 'cc', 'total']
+
+pretrained_folder: !ref /workspace/speechbrain/recipes/KdialectSpeech/ASR/Conformer/Inference/pretrained-model-src/<province_code>
+# pretrained_folder: starcel/asr-conformer-kdialectspeech # huggingface
+
+output_folder: !ref results/<province_code>
+wer_file: !ref <output_folder>/swer.txt
+save_folder: !ref <output_folder>/save
+
+# Data files
+data_folder: !ref /workspace/speechbrain/recipes/KdialectSpeech/Prepare_data/data
+test_csv: !ref <data_folder>/<province_code>_3_30_test.csv
+
+skip_prep: True
+
+number_of_epochs: 1
+ctc_weight: 0.3
+gradient_accumulation: 4
+gradient_clipping: 5.0
+loss_reduction: 'batchmean'
+# sorting: ascending # random, ascending, descending
+
+# stages related parameters
+stage_one_epochs: 80
+lr_adam: 0.001
+lr_sgd: 0.000025
+
+# Feature parameters
+sample_rate: 16000
+n_fft: 400
+n_mels: 80
+
+# Dataloader options
+test_dataloader_opts:
+    batch_size: 1
+
+####################### Model parameters ###########################
+# Transformer
+d_model: 256
+nhead: 4
+num_encoder_layers: 12
+num_decoder_layers: 6
+d_ffn: 2048
+transformer_dropout: 0.1
+activation: !name:torch.nn.GELU
+output_neurons: 5000
+vocab_size: 5000
+
+# Outputs
+blank_index: 0
+label_smoothing: 0.1
+pad_index: 0
+bos_index: 1
+eos_index: 2
+unk_index: 0
+
+# Decoding parameters
+min_decode_ratio: 0.0
+max_decode_ratio: 1.0
+valid_search_interval: 30 # 10
+valid_beam_size: 10
+test_beam_size: 60
+lm_weight: 0.20
+ctc_weight_decode: 0.40
+
+############################## models ################################
+
+normalize: !new:speechbrain.processing.features.InputNormalization
+    norm_type: global
+    update_until_epoch: 4
+
+CNN: !new:speechbrain.lobes.models.convolution.ConvolutionFrontEnd
+    input_shape: (8, 10, 80)
+    num_blocks: 2
+    num_layers_per_block: 1
+    out_channels: (64, 32)
+    kernel_sizes: (3, 3)
+    strides: (2, 2)
+    residuals: (False, False)
+
+Transformer: !new:speechbrain.lobes.models.transformer.TransformerASR.TransformerASR # yamllint disable-line rule:line-length
+    input_size: 640
+    tgt_vocab: !ref <output_neurons>
+    d_model: !ref <d_model>
+    nhead: !ref <nhead>
+    num_encoder_layers: !ref <num_encoder_layers>
+    num_decoder_layers: !ref <num_decoder_layers>
+    d_ffn: !ref <d_ffn>
+    dropout: !ref <transformer_dropout>
+    activation: !ref <activation>
+    encoder_module: conformer
+    attention_type: RelPosMHAXL
+    normalize_before: True
+    causal: False
+
+# NB: It has to match the pre-trained TransformerLM!!
+lm_model: !new:speechbrain.lobes.models.transformer.TransformerLM.TransformerLM # yamllint disable-line rule:line-length
+    vocab: !ref <output_neurons>
+    d_model: 768
+    nhead: 12
+    num_encoder_layers: 12
+    num_decoder_layers: 0
+    d_ffn: 3072
+    dropout: 0.0
+    activation: !name:torch.nn.GELU
+    normalize_before: False
+
+tokenizer: !new:sentencepiece.SentencePieceProcessor
+
+ctc_lin: !new:speechbrain.nnet.linear.Linear
+    input_size: !ref <d_model>
+    n_neurons: !ref <output_neurons>
+
+seq_lin: !new:speechbrain.nnet.linear.Linear
+    input_size: !ref <d_model>
+    n_neurons: !ref <output_neurons>
+
+modules:
+    normalize: !ref <normalize>
+    CNN: !ref <CNN>
+    Transformer: !ref <Transformer>
+    seq_lin: !ref <seq_lin>
+    ctc_lin: !ref <ctc_lin>
+
+model: !new:torch.nn.ModuleList
+    - [!ref <normalize>, !ref <CNN>, !ref <Transformer>, !ref <seq_lin>, !ref <ctc_lin>]
+
+# define two optimizers here for two-stage training
+Adam: !name:torch.optim.Adam
+    lr: !ref <lr_adam>
+    betas: (0.9, 0.98)
+    eps: 0.000000001
+
+SGD: !name:torch.optim.SGD
+    lr: !ref <lr_sgd>
+    momentum: 0.99
+    nesterov: True
+
+test_search: !new:speechbrain.decoders.S2STransformerBeamSearch
+    modules: [!ref <Transformer>, !ref <seq_lin>, !ref <ctc_lin>]
+    bos_index: !ref <bos_index>
+    eos_index: !ref <eos_index>
+    blank_index: !ref <blank_index>
+    min_decode_ratio: !ref <min_decode_ratio>
+    max_decode_ratio: !ref <max_decode_ratio>
+    beam_size: !ref <test_beam_size>
+    ctc_weight: !ref <ctc_weight_decode>
+    # lm_weight: !ref <lm_weight>
+    # lm_modules: !ref <lm_model>
+    # temperature: 1.25
+    # temperature_lm: 1.25
+    using_eos_threshold: False
+    length_normalization: False # True
+
+log_softmax: !new:torch.nn.LogSoftmax
+    dim: -1
+
+ctc_cost: !name:speechbrain.nnet.losses.ctc_loss
+    blank_index: !ref <blank_index>
+    reduction: !ref <loss_reduction>
+
+seq_cost: !name:speechbrain.nnet.losses.kldiv_loss
+    label_smoothing: !ref <label_smoothing>
+    reduction: !ref <loss_reduction>
+
+noam_annealing: !new:speechbrain.nnet.schedulers.NoamScheduler
+    lr_initial: !ref <lr_adam>
+    n_warmup_steps: 3000
+#    model_size: !ref <d_model>
+
+checkpointer: !new:speechbrain.utils.checkpoints.Checkpointer
+    checkpoints_dir: !ref <save_folder>
+    recoverables:
+        model: !ref <model>
+        noam_scheduler: !ref <noam_annealing>
+        normalizer: !ref <normalize>
+        counter: !ref <epoch_counter>
+
+epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter
+    limit: !ref <number_of_epochs>
+
+compute_features: !new:speechbrain.lobes.features.Fbank
+    sample_rate: !ref <sample_rate>
+    n_fft: !ref <n_fft>
+    n_mels: !ref <n_mels>
+
+# error_rate_computer: !name:speechbrain.utils.metric_stats.ErrorRateStats
+error_rate_computer: !name:speechbrain.utils.metric_stats_sc.ErrorRateStats
+acc_computer: !name:speechbrain.utils.Accuracy.AccuracyStats
+
+# The pretrainer allows a mapping between pretrained files and instances that
+# are declared in the yaml.
+pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+    collect_in: !ref <save_folder>
+    loadables:
+        # lm: !ref <lm_model>
+        tokenizer: !ref <tokenizer>
+        model: !ref <model>
+        normalizer: !ref <normalize>
+    paths:
+        # lm: !ref <pretrained_lm_tokenizer_path>/lm.ckpt
+        # tokenizer: !ref <pretrained_lm_tokenizer_path>/tokenizer.ckpt
+        tokenizer: !ref <pretrained_folder>/tokenizer.ckpt
+        model: !ref <pretrained_folder>/asr.ckpt
+        normalizer: !ref <pretrained_folder>/normalizer.ckpt
+

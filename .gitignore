@@ -2,7 +2,7 @@
 **/temp/
 
 # pretrained model files
-**/pretrained-model*/
+**/Inference/pretrained-model*/
 **/fine-tuned-model/
 **/ckpt/
 
@@ -30,7 +30,7 @@
 
 *.csv
 
-*.yaml
+# *.yaml
 
 *.ckpt
 
