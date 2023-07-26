@@ -27,6 +27,7 @@ import sys
 sys.path.append("../kdialectspeech")
 from string_normalize import string_normalize
 from time_convert import time_convert
+from check_audio_file import check_audio_file
 
 # logger = logging.getLogger(__name__)
 
@@ -34,11 +35,11 @@ from time_convert import time_convert
 # 1. 목록 파일 읽기, 절대경로 추가, json file, wav file 경로,  파일 존재 확인
 DATA_DIR = Path("/data/nia")
 SENTENCE_DIR = DATA_DIR / "sentences" # 문장별로 분리된 wav 파일들이 저장될 위치
+TEST_FILE_LIST_DIR = DATA_DIR / "test_file_list"
 
 # 입력 파일들
 # PROVINCES = ["충청도", "전라도", "제주도", "강원도", "경상도"]
-# PROVINCES_DIC = {"cc":"충청도", "jl":"전라도", "jj":"제주도", "gw":"강원도", "gs":"경상도"}
-PROVINCES_DIC = {"cc":"충청도", "jl":"전라도", "jj":"제주도", "gs":"경상도"}
+PROVINCES_DIC = {"cc":"충청도", "jl":"전라도", "jj":"제주도", "gw":"강원도", "gs":"경상도"}
 SPEECH_KINDS = ["따라말하기", "질문에답하기", "2인발화"]
 
 
@@ -65,7 +66,7 @@ def make_file_path_df(input_file, output_file, label_dir) -> pd.DataFrame:
         print(f"오류가 발생했습니다: {e}")
 
 
-def make_path_file(provinces_dic, speech_kinds):
+def make_path_file(test_file_list_dir, provinces_dic, speech_kinds):
     """
     주어진 테스트 파일 목록을 가지고 절대 경로가 포함된 json file과 wav file의 목록을 만들기 
     """
@@ -90,7 +91,7 @@ def make_path_file(provinces_dic, speech_kinds):
             base_label_dir = DATA_DIR / "139-2.중·노년층 한국어 방언 데이터 (충청도, 전라도, 제주도)" / "08.최종산출물" / "01-1.최종데이터(업로드)" / "3.Test" / "02.라벨링데이터"
             province_label_dir = base_label_dir / ("03. " + province)
 
-        output_file = province_code + "_test.csv"
+        output_file = os.path.join(test_file_list_dir, province_code + "_test.csv")
 
         if os.path.isfile(output_file):
             os.remove(output_file)
@@ -98,19 +99,21 @@ def make_path_file(provinces_dic, speech_kinds):
         for speech_kind in speech_kinds :
             if speech_kind == "따라말하기":
                 label_dir = province_label_dir / "01. 1인발화 따라말하기"
-                json_list_file = province + "_" + speech_kind + ".csv"
+                json_list_file = os.path.join(test_file_list_dir, province + "_" + speech_kind + ".csv")
                 # json file 경로, wav file 경로 추가
                 speech_kind__0_df = make_file_path_df(json_list_file, output_file, label_dir)
                     
             elif speech_kind == "질문에답하기":
                 label_dir = province_label_dir / "02. 1인발화 질문에답하기/"
-                json_list_file = province + "_" + speech_kind + ".csv"
+                # json_list_file = province + "_" + speech_kind + ".csv"
+                json_list_file = os.path.join(test_file_list_dir, province + "_" + speech_kind + ".csv")
                 # json file 경로, wav file 경로 추가
                 speech_kind__1_df = make_file_path_df(json_list_file, output_file, label_dir)
 
             elif speech_kind == "2인발화":
                 label_dir = province_label_dir / "03. 2인발화/"
-                json_list_file = province + "_" + speech_kind + ".csv"
+                # json_list_file = province + "_" + speech_kind + ".csv"
+                json_list_file = os.path.join(test_file_list_dir, province + "_" + speech_kind + ".csv")
                 # json file 경로, wav file 경로 추가
                 speech_kind__2_df = make_file_path_df(json_list_file, output_file, label_dir)
 
@@ -234,7 +237,7 @@ def make_csv_lines(json_file_path:str, wav_file_path:str, data_id, splited_wav_f
     return csv_lines
 
 
-def create_csv(province_code, file_list_csv, save_folder):
+def create_csv(test_file_list_dir, province_code, file_list_csv, save_folder):
     """ 주어진 리스트 파일의 목록을 읽어서 매니패스트 파일을 만들어서 저장
     Arguments
     ---------
@@ -253,7 +256,7 @@ def create_csv(province_code, file_list_csv, save_folder):
 
     file_list_df = pd.read_csv(file_list_csv)
 
-    long_sentence_list_file = province_code + "_long_sentence_list.txt"
+    long_sentence_list_file = os.path.join(test_file_list_dir, province_code + "_long_sentence_list.txt")
     print(f"long_sentence_list_file : {long_sentence_list_file}")
     if os.path.isfile(long_sentence_list_file):
         os.remove(long_sentence_list_file)
@@ -264,7 +267,8 @@ def create_csv(province_code, file_list_csv, save_folder):
         total_csv_lines = total_csv_lines + csv_lines # append를 사용하면 안됨. 리스트 안에 리스트가 추가됨
 
     total_csv_df = pd.DataFrame(total_csv_lines, columns=['ID', 'duration', 'wav', 'province_code', 'wrd'])
-    total_csv_file = province_code + '_test_manifest.csv'
+    total_csv_file = os.path.join(test_file_list_dir, province_code + '_test_manifest.csv')
+    # json_list_file = os.path.join(test_file_list_dir, province + "_" + speech_kind + ".csv")
     total_csv_df.to_csv(total_csv_file, index=False)
 
 # 3. 문장 정보 파싱
@@ -273,6 +277,8 @@ def create_csv(province_code, file_list_csv, save_folder):
 
 
 if __name__ == "__main__":
+    ##### 실행 방법 :
+    ##### python test_data_prepare.py
     ## python test_data_prepare.py 실행하면 모든 지역에 대해 준비 작업 실행
     ## 불필요한 라인은 주석처리하여 필요한 부분만 실행할 수 있음
     ## test용 파일 목록 파일이 현재 디렉토리에 있어야 함. "지역명" + "발화종류" 조함으로 있어야 함.
@@ -283,14 +289,14 @@ if __name__ == "__main__":
 
 
     # 1. 목록 파일 읽기, 절대경로 추가, json file, wav file 경로,  파일 존재 확인
-    make_path_file(PROVINCES_DIC, SPEECH_KINDS)
+    make_path_file(TEST_FILE_LIST_DIR, PROVINCES_DIC, SPEECH_KINDS)
     print("file path csv 만들기를 완료했습니다.")
 
-    print("파일 목록의 파일들이 있는지 확인합니다.")
+    print("파일 목록의 파일들이 있는지 확인하고, 오디오 파일을 검사합니다.")
     for province_code, province in PROVINCES_DIC.items():
         print("---------------------------------------")
         print(f"{province} 파일 목록의 파일들이 있는지 확인")
-        list_file = province_code + "_test.csv"
+        list_file = os.path.join(TEST_FILE_LIST_DIR, province_code + "_test.csv")
         path_list = pd.read_csv(list_file)
 
         print("json file check : ")
@@ -299,6 +305,18 @@ if __name__ == "__main__":
         print("wav file check : ")
         check_file_path(path_list["wav_file"])
 
+        # 오디오 파일 체크 : 정상적으로 wav 파일이 열리는 지 확인
+        wrong_audio_file_list = []
+        for wav_file in path_list["wav_file"]:
+            check_result = check_audio_file(wav_file)
+            # print(check_result)
+
+            if check_result is not None:
+                wrong_audio_file_list.append(check_result)
+
+        if wrong_audio_file_list is not None:
+            print(f"wrong file number : {len(wrong_audio_file_list)}")
+            print(f"wrong_sr_list : {wrong_audio_file_list}")
 
     # 2. manifest file 만들기 : 
     # columns : 'ID', 'duration', 'wav', 'province_code', 'wrd'
@@ -306,13 +324,5 @@ if __name__ == "__main__":
 
     for province_code, province in PROVINCES_DIC.items():
         file_list_csv = province_code  + "_test.csv"
-        # save_folder = os.path.join(SENTENCE_DIR, province)
         print(f"{province} 방언 매니페스트 파일 만들기 시작.")
-        create_csv(province_code, file_list_csv, SENTENCE_DIR)
-
-    ### 제주도만 테스트할 경우
-    # province = "제주도"
-    # file_list_csv = province  + "_test.csv"
-    # # save_folder = os.path.join(SENTENCE_DIR, province)
-    # print(f"{province} 방언 매니페스트 파일 만들기 시작.")
-    # create_csv(province, file_list_csv, SENTENCE_DIR)
+        create_csv(TEST_FILE_LIST_DIR, province_code, file_list_csv, SENTENCE_DIR)

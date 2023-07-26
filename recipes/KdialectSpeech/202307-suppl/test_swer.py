@@ -216,7 +216,7 @@ def dataio_prepare(hparams):
     @sb.utils.data_pipeline.takes("wav")
     @sb.utils.data_pipeline.provides("sig")
     def audio_pipeline(wav):
-        logger.info(f"wav : {wav}")
+        # logger.info(f"wav : {wav}") # 문제가 있는 파일을 찾을 때 사용
         sig = sb.dataio.dataio.read_audio(wav)
         return sig
 

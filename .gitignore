@@ -1,3 +1,6 @@
+# temp dir
+**/temp/
+
 # pretrained model files
 **/pretrained-model*/
 **/fine-tuned-model/
