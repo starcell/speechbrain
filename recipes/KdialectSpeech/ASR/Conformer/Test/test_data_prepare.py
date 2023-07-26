@@ -24,7 +24,7 @@ import os
 from pydub import AudioSegment
 
 import sys
-sys.path.append("../kdialectspeech")
+sys.path.append("../../../kdialectspeech")
 from string_normalize import string_normalize
 from time_convert import time_convert
 from check_audio_file import check_audio_file
@@ -254,7 +254,8 @@ def create_csv(test_file_list_dir, province_code, file_list_csv, save_folder):
     None
     """
 
-    file_list_df = pd.read_csv(file_list_csv)
+    file_list_csv_path = os.path.join(test_file_list_dir, file_list_csv)
+    file_list_df = pd.read_csv(file_list_csv_path)
 
     long_sentence_list_file = os.path.join(test_file_list_dir, province_code + "_long_sentence_list.txt")
     print(f"long_sentence_list_file : {long_sentence_list_file}")
@@ -287,7 +288,12 @@ if __name__ == "__main__":
     ## SENTENCE_DIR에 문장별로 분리된 wav file 저장됨, 
     ## 테스트 데이터로 manifest file과 문장별로 분리된 wav file이 사용됨
 
+    if sys.argv is not None:
+        province_code = sys.argv[1]
+        provice = PROVINCES_DIC[province_code]
+        PROVINCES_DIC = {province_code:provice}
 
+    print(f"{PROVINCES_DIC} : 평가용 파일의 절대 경로 목록을 만듧니다.")
     # 1. 목록 파일 읽기, 절대경로 추가, json file, wav file 경로,  파일 존재 확인
     make_path_file(TEST_FILE_LIST_DIR, PROVINCES_DIC, SPEECH_KINDS)
     print("file path csv 만들기를 완료했습니다.")

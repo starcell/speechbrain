@@ -1,4 +1,8 @@
 2023/03/24
+
+긴 오디오 파일을 잘라서 추론하고 다시 붙이는 방법 연구 :
+    포즈가 있는 부분을 찾아서 자르기
+    
 참고(오디오 청크) : https://github.com/tyiannak/pyAudioAnalysis
 
 evaluation 프로세스
