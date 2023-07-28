@@ -1,3 +1,76 @@
+2023/07/26
+huggingface에 프리트레인드 파일 올리기
+
+
+설치할 모듈 : transformers, git-lfs
+    pip install transformers
+
+    sudo apt-get install git-lfs
+    git lfs install
+
+
+로컬 컴퓨터에서 huggingface login :
+    huggingface-cli login
+
+    토큰이 필요
+    로그인 한 후에 https://huggingface.co/settings/tokens로 접속하면 토큰을 발급 받을 수 있다.
+    기존에 발급한 토큰이 있으면 이 사이트에서 복사해서 사용할 수 있다.
+
+저장소 만들기 아래 명령으로 원격저장소(huggingface의 저장소)를 만들 수 있다.
+    huggingface-cli repo create {프로젝트명}
+    ex)
+    huggingface-cli repo create kdialectspeech
+
+원격 저장소를 clone
+    git clone https://huggingface.co/npark/kdialectspeech
+
+업로드할 파일들을 로컬저장소에 복사
+
+복사한 후에 git으로 업로드
+    git add --all
+    git commit -m "message"
+    git push
+        -> 오류 발생
+
+Missing or invalid credentials.
+Error: connect ECONNREFUSED /tmp/vscode-git-949dfe5f18.sock
+    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1247:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '/tmp/vscode-git-949dfe5f18.sock'
+}
+Missing or invalid credentials.
+Error: connect ECONNREFUSED /tmp/vscode-git-949dfe5f18.sock
+    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1247:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '/tmp/vscode-git-949dfe5f18.sock'
+}
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://huggingface.co/npark/kdialectspeech/'
+
+**** 해결책 *****
+https://zel0rd.tistory.com/180
+
+VS Code에서 
+    설정(settings)
+    git.terminal에 있는 git: terminal authentication을 끄고
+    새로운 터미널을 열고 푸쉬
+
+    username : npark@starcell.co.kr
+    password : 그거
+
+huggingfase에 저장된 모델을 불러와서 쓸 때는 아래와 같이 파이썬 프로그램에서 사용한다.
+    from transformers import AutoModel
+    model = Automodel.from_pretrained("JLake310/klue-bert-base-re")
+
+
+
+
+
+
 2023/03/24
 gs data에 마이너스 시간 데이터 있음
 cc에 긴 데이터 있음 : max	318.351000

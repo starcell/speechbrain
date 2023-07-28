@@ -48,7 +48,7 @@ from speechbrain.utils.distributed import run_on_main
 from speechbrain.pretrained import EncoderDecoderASR
 from speechbrain.utils.parameter_transfer import Pretrainer
 
-sys.path.append('../../../kdialectspeech')
+sys.path.append("/workspace/speechbrain/recipes/KdialectSpeech/kdialectspeech")
 from swer import space_normalize_lists
 
 logger = logging.getLogger(__name__)

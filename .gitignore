@@ -2,7 +2,7 @@
 **/temp/
 
 # pretrained model files
-**/Inference/pretrained-model*/
+**/pretrained-model*/
 **/fine-tuned-model/
 **/ckpt/
 
