@@ -1,3 +1,35 @@
+2023/08/01
+python version : 3.8.2
+pytorch version : 1.13.0+cu117
+Driver Version: 525.125.06   
+CUDA Version: 12.0
+
+
+결과 로그 매트릭 보기
+swer.txt 파일에 결과 쓰기
+아래와 같이 세부분으로 결과 기록됨. 각각 SWER, WER, CER 값을 나타냄.
+(%SER 또는 ALIGNMENTS로 검색)
+
+%SWER 14.78 [ 10664 / 72164, 781 ins, 855 del, 9028 sub ]
+%SER 59.89 [ 4173 / 6968 ]
+Scored 6968 sentences, 0 not present in hyp.
+================================================================================
+ALIGNMENTS
+
+%WER 19.12 [ 13798 / 72164, 1769 ins, 1505 del, 10524 sub ]
+%SER 64.54 [ 4497 / 6968 ]
+Scored 6968 sentences, 0 not present in hyp.
+================================================================================
+ALIGNMENTS
+
+%CER 7.84 [ 13801 / 176080, 1299 ins, 1914 del, 10588 sub ]
+%SER 59.89 [ 4173 / 6968 ]
+Scored 6968 sentences, 0 not present in hyp.
+================================================================================
+ALIGNMENTS
+
+
+
 2023/07/26
 huggingface에 프리트레인드 파일 올리기
 
