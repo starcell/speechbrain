@@ -30,6 +30,8 @@ inference 수정
 ```bash
 docker export kdialect-test-0726 > kdialectspeech-test.tar
 ```
+이렇게 익스포트한 파일을 복사해서 사용 > gw_gs.tar, cc_jl_jj.tar
+보관룔 압축 : kdialectspeech-test.tar -> kdialectspeech-test.tar.zip
 
 2) 컨테이너 export file을 import해서 사용하기
     import 방법(아래 두 가지 방법 중 하나)

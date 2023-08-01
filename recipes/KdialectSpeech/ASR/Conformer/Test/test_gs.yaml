@@ -11,7 +11,8 @@
 
 province_code: gs #['gw', 'gs', 'jl', 'jj', 'cc', 'total']
 
-pretrained_folder: !ref /workspace/speechbrain/recipes/KdialectSpeech/ASR/Conformer/Test/pretrained-model-src/<province_code>
+test_dir: /workspace/speechbrain/recipes/KdialectSpeech/ASR/Conformer/Test
+pretrained_folder: !ref <test_dir>/pretrained-model-src/<province_code>
 # pretrained_folder: starcel/asr-conformer-kdialectspeech # huggingface
 
 output_folder: !ref results/<province_code>
@@ -19,7 +20,7 @@ wer_file: !ref <output_folder>/swer.txt
 save_folder: !ref <output_folder>/save
 
 # Data files
-data_folder: !ref /data/nia/test_file_list
+data_folder: /data/nia/139-1.중·노년층 한국어 방언 데이터 (강원도, 경상도)/07.보완조치/01.보완완료/03.유효성/1. 음성인식모델/평가데이터셋/3. test_file_list
 test_csv: !ref <data_folder>/<province_code>_test_manifest.csv
 
 skip_prep: True

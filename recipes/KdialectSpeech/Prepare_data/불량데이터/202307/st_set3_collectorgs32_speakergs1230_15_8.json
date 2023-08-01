@@ -1,0 +1,275 @@
+{
+  "fileName": "st_set3_collectorgs32_speakergs1230_15_8",
+  "speaker": [
+    {
+      "speakerId": "speakergs1230",
+      "gender": "f",
+      "birthYear": 1947,
+      "residenceProvince": "gs",
+      "residenceCity": 19,
+      "residencePeriod": 70,
+      "job": "무",
+      "academicBackground": 3,
+      "healthCondition": 1
+    }
+  ],
+  "collector": {
+    "residencePeriod": 48,
+    "residenceCity": 19,
+    "collectorId": "collectorgs32",
+    "residenceProvince": "gs"
+  },
+  "script": {
+    "scriptId": 16.0,
+    "domain": "풍속",
+    "speechType": "Read",
+    "value": "엣날에는 혼재 짐장을 했는디, 요즘은 힘들어가 동네 사람들하고 겉이 합니더."
+  },
+  "audio": {
+    "bitsPerSample": 16.0,
+    "speechStartTime": "00:00:00.720",
+    "speechEndTime": "00:00:07.310",
+    "recordDuration": 6.6,
+    "samplingFrequency": 16000.0,
+    "channel": "Mono",
+    "recordDate": "20221016"
+  },
+  "stt": {
+    "speakerIds": [
+      "speakergs1230"
+    ],
+    "recognizer": "naver clova speech",
+    "segments": [
+      {
+        "orderInFile": 1,
+        "startTime": "00:00:00.720",
+        "endTime": "00:00:01.390",
+        "value": "옛날에는"
+      },
+      {
+        "orderInFile": 2,
+        "startTime": "00:00:01.460",
+        "endTime": "00:00:01.890",
+        "value": "혼자"
+      },
+      {
+        "orderInFile": 3,
+        "startTime": "00:00:02.420",
+        "endTime": "00:00:02.990",
+        "value": "짐장도"
+      },
+      {
+        "orderInFile": 4,
+        "startTime": "00:00:03.000",
+        "endTime": "00:00:03.470",
+        "value": "했는데"
+      },
+      {
+        "orderInFile": 5,
+        "startTime": "00:00:03.580",
+        "endTime": "00:00:04.030",
+        "value": "요즘은"
+      },
+      {
+        "orderInFile": 6,
+        "startTime": "00:00:04.100",
+        "endTime": "00:00:04.690",
+        "value": "힘들어가"
+      },
+      {
+        "orderInFile": 7,
+        "startTime": "00:00:05.220",
+        "endTime": "00:00:05.530",
+        "value": "동네"
+      },
+      {
+        "orderInFile": 8,
+        "startTime": "00:00:05.600",
+        "endTime": "00:00:06.150",
+        "value": "사람들하고"
+      },
+      {
+        "orderInFile": 9,
+        "startTime": "00:00:06.160",
+        "endTime": "00:00:06.450",
+        "value": "같이"
+      },
+      {
+        "orderInFile": 10,
+        "startTime": "00:00:06.500",
+        "endTime": "00:00:07.310",
+        "value": "하시더구만"
+      }
+    ],
+    "responseDate": "20221215"
+  },
+  "transcription": {
+    "standard": "옛날에는 혼자 김장도 했는데 요즘은 힘들어서 동네 사람들하고 같이 합니다 그냥",
+    "dialect": "엣날에는 혼자 짐장도 했는데 요즘은 힘들어가 동네 사람들하고 같이 하입시더 고마 ",
+    "pronunciation": "엣날에는 혼자 짐장도 했는데 요즘은 힘들어가 동네 사람들하고 같이 하입시더 고마 ",
+    "sentences": [
+      {
+        "sentenceId": 1,
+        "speakerId": "speakergs1230",
+        "startTime": "00:00:00.720",
+        "endTime": "00:00:00.000",
+        "dialect": "엣날에는 혼자 짐장도 했는데 요즘은 힘들어가 동네 사람들하고 같이 하입시더 고마",
+        "pronunciation": "엣날에는 혼자 짐장도 했는데 요즘은 힘들어가 동네 사람들하고 같이 하입시더 고마",
+        "standard": "옛날에는 혼자 김장도 했는데 요즘은 힘들어서 동네 사람들하고 같이 합니다 그냥",
+        "intonations": [
+          0
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "standard": "옛날에는",
+        "dialect": "엣날에는",
+        "pronunciation": "엣날에는",
+        "orderInFile": 1,
+        "startTime": "00:00:00.720",
+        "endTime": "00:00:01.390",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "혼자",
+        "dialect": "혼자",
+        "pronunciation": "혼자",
+        "orderInFile": 2,
+        "startTime": "00:00:01.460",
+        "endTime": "00:00:01.890",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "김장도",
+        "dialect": "짐장도",
+        "pronunciation": "짐장도",
+        "orderInFile": 3,
+        "startTime": "00:00:02.420",
+        "endTime": "00:00:02.990",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "했는데",
+        "dialect": "했는데",
+        "pronunciation": "했는데",
+        "orderInFile": 4,
+        "startTime": "00:00:03.000",
+        "endTime": "00:00:03.470",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "요즘은",
+        "dialect": "요즘은",
+        "pronunciation": "요즘은",
+        "orderInFile": 5,
+        "startTime": "00:00:03.580",
+        "endTime": "00:00:04.030",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "힘들어서",
+        "dialect": "힘들어가",
+        "pronunciation": "힘들어가",
+        "orderInFile": 6,
+        "startTime": "00:00:04.100",
+        "endTime": "00:00:04.690",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "동네",
+        "dialect": "동네",
+        "pronunciation": "동네",
+        "orderInFile": 7,
+        "startTime": "00:00:05.220",
+        "endTime": "00:00:05.530",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "사람들하고",
+        "dialect": "사람들하고",
+        "pronunciation": "사람들하고",
+        "orderInFile": 8,
+        "startTime": "00:00:05.600",
+        "endTime": "00:00:06.150",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "같이",
+        "dialect": "같이",
+        "pronunciation": "같이",
+        "orderInFile": 9,
+        "startTime": "00:00:06.160",
+        "endTime": "00:00:06.450",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "합니다",
+        "dialect": "하입시더",
+        "pronunciation": "하입시더",
+        "orderInFile": 10,
+        "startTime": "00:00:06.500",
+        "endTime": "00:00:00.000",
+        "voiceType": "voice_speech"
+      },
+      {
+        "standard": "그냥",
+        "dialect": "고마",
+        "pronunciation": "고마",
+        "orderInFile": 11,
+        "startTime": "00:00:00.000",
+        "endTime": "00:00:00.000",
+        "voiceType": "voice_speech"
+      }
+    ]
+  },
+  "annotation": {
+    "standards": [
+      {
+        "transcriptionBeginInFile": 1,
+        "transcriptionEndInFile": 4,
+        "value": "옛날에는"
+      },
+      {
+        "transcriptionBeginInFile": 9,
+        "transcriptionEndInFile": 11,
+        "value": "김장도"
+      },
+      {
+        "transcriptionBeginInFile": 21,
+        "transcriptionEndInFile": 24,
+        "value": "힘들어서"
+      },
+      {
+        "transcriptionBeginInFile": 38,
+        "transcriptionEndInFile": 40,
+        "value": "합니다"
+      },
+      {
+        "transcriptionBeginInFile": 42,
+        "transcriptionEndInFile": 43,
+        "value": "그냥"
+      }
+    ],
+    "intents": [
+      {
+        "sentenceId": 1.0,
+        "tagType": "DES"
+      }
+    ],
+    "emotions": [
+      {
+        "sentenceId": 1.0,
+        "tagType": "irrelevant"
+      }
+    ],
+    "intonations": [],
+    "grammarTypes": [
+      {
+        "sentenceId": 1.0,
+        "tagType": "DEC"
+      }
+    ],
+    "transcriptionAnnotations": []
+  }
+}
