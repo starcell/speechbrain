@@ -2,6 +2,19 @@
   <img src="docs/images/speechbrain-logo.svg" alt="SpeechBrain Logo"/>
 </p>
 
+2023년까지 중노년층 방언 데이터 모델링을 할 때 사용, 소스를 일부 수정   
+starcell branch에 수정된 내용이 있으므로 이 프로젝트를 사용할 때는 starcell branch에서 작업   
+
+## 브랜치 확인
+```
+git branch
+```
+
+## 브랜치 클론
+```
+git clone -b starcell git@github.com:starcell/speechbrain.git
+```
+
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/SpeechBrain1/)
 
 SpeechBrain is an **open-source** and **all-in-one** conversational AI toolkit based on PyTorch.
