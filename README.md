@@ -2,6 +2,8 @@
   <img src="docs/images/speechbrain-logo.svg" alt="SpeechBrain Logo"/>
 </p>
 
+## starcell branch에서 사용
+
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/SpeechBrain1/)
 
 SpeechBrain is an **open-source** and **all-in-one** conversational AI toolkit based on PyTorch.
